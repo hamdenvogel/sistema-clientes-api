@@ -17,7 +17,7 @@ API RESTful utilizando Java Spring Boot para a consulta e gerenciamento de clien
 
 # Requisitos técnicos:
 
-- Java 17 (compilação para Java 21)
+- Java 21
 - Spring Boot 3.2.5
 - Spring Data JPA
 - Spring Security
@@ -53,7 +53,7 @@ API RESTful utilizando Java Spring Boot para a consulta e gerenciamento de clien
 # Tecnologias/Ferramentas utilizadas
 
 - Maven
-- Java (versão 17/21)
+- Java (versão 21)
 - JUnit (versão 5)
 - Spring Data JPA (Repository)
 - Spring Security + JWT
