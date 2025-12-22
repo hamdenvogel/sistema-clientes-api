@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,9 +18,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.web.servlet.MockMvc;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.hvogel.clientes.enums.EPerfil;
 import io.github.hvogel.clientes.model.entity.Perfil;
@@ -29,18 +25,13 @@ import io.github.hvogel.clientes.model.repository.PerfilRepository;
 import io.github.hvogel.clientes.model.repository.UsuarioRepository;
 import io.github.hvogel.clientes.rest.dto.CredenciaisDTO;
 import io.github.hvogel.clientes.rest.dto.SignupDTO;
-import io.github.hvogel.clientes.security.jwt.JwtUtils;
 import io.github.hvogel.clientes.service.impl.UserDetailsImpl;
+
+import io.github.hvogel.clientes.test.base.BaseControllerTest;
 
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class AuthControllerTest {
-
-        @Autowired
-        private MockMvc mockMvc;
-
-        @Autowired
-        private ObjectMapper objectMapper;
+class AuthControllerTest extends BaseControllerTest {
 
         @MockBean
         private AuthenticationManager authenticationManager;
@@ -53,18 +44,6 @@ class AuthControllerTest {
 
         @MockBean
         private PasswordEncoder encoder;
-
-        @MockBean
-        private JwtUtils jwtUtils;
-
-        @MockBean
-        private io.github.hvogel.clientes.service.impl.UserDetailsServiceImpl userDetailsService;
-
-        @MockBean
-        private io.github.hvogel.clientes.security.jwt.AuthEntryPointJwt unauthorizedHandler;
-
-        @MockBean
-        private io.github.hvogel.clientes.util.HttpServletReqUtil reqUtil;
 
         @Test
         void testAuthenticateUser() throws Exception {
@@ -211,5 +190,106 @@ class AuthControllerTest {
                                 .content(objectMapper.writeValueAsString(signupDTO)))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.message").value("User registered successfully!"));
+        }
+
+        @Test
+        void testRegisterUser_RoleNotFound() throws Exception {
+                SignupDTO signupDTO = new SignupDTO();
+                signupDTO.setUsername("noroleuser");
+                signupDTO.setEmail("norole@test.com");
+                signupDTO.setPassword("password");
+                signupDTO.setRole(Collections.singleton("admin"));
+
+                when(userRepository.existsByUsername("noroleuser")).thenReturn(false);
+                when(userRepository.existsByEmail("norole@test.com")).thenReturn(false);
+                when(encoder.encode("password")).thenReturn("encodedPassword");
+
+                when(roleRepository.findByNome(EPerfil.ROLE_ADMIN)).thenReturn(Optional.empty());
+
+                String content = objectMapper.writeValueAsString(signupDTO);
+                org.junit.jupiter.api.Assertions.assertThrows(Exception.class,
+                                () -> mockMvc.perform(post("/api/auth/signup")
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(content)));
+        }
+
+        @Test
+        void testRegisterUser_RoleUserNotFound_NullRoles() throws Exception {
+                SignupDTO signupDTO = new SignupDTO();
+                signupDTO.setUsername("nouserrole");
+                signupDTO.setEmail("nouserrole@test.com");
+                signupDTO.setPassword("password");
+                signupDTO.setRole(null);
+
+                when(userRepository.existsByUsername("nouserrole")).thenReturn(false);
+                when(userRepository.existsByEmail("nouserrole@test.com")).thenReturn(false);
+                when(encoder.encode("password")).thenReturn("encodedPassword");
+
+                when(roleRepository.findByNome(EPerfil.ROLE_USER)).thenReturn(Optional.empty());
+
+                String content = objectMapper.writeValueAsString(signupDTO);
+                org.junit.jupiter.api.Assertions.assertThrows(Exception.class,
+                                () -> mockMvc.perform(post("/api/auth/signup")
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(content)));
+        }
+
+        @Test
+        void testRegisterUser_RoleModNotFound() throws Exception {
+                SignupDTO signupDTO = new SignupDTO();
+                signupDTO.setUsername("nomodrole");
+                signupDTO.setEmail("nomodrole@test.com");
+                signupDTO.setPassword("password");
+                signupDTO.setRole(Collections.singleton("mod"));
+
+                when(userRepository.existsByUsername("nomodrole")).thenReturn(false);
+                when(userRepository.existsByEmail("nomodrole@test.com")).thenReturn(false);
+                when(encoder.encode("password")).thenReturn("encodedPassword");
+
+                when(roleRepository.findByNome(EPerfil.ROLE_MODERATOR)).thenReturn(Optional.empty());
+
+                String content = objectMapper.writeValueAsString(signupDTO);
+                org.junit.jupiter.api.Assertions.assertThrows(Exception.class,
+                                () -> mockMvc.perform(post("/api/auth/signup")
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(content)));
+        }
+
+        @Test
+        void testRegisterUser_RoleDefaultUserNotFound() throws Exception {
+                SignupDTO signupDTO = new SignupDTO();
+                signupDTO.setUsername("defaultuser");
+                signupDTO.setEmail("default@test.com");
+                signupDTO.setPassword("password");
+                signupDTO.setRole(Collections.singleton("user"));
+
+                when(userRepository.existsByUsername("defaultuser")).thenReturn(false);
+                when(userRepository.existsByEmail("default@test.com")).thenReturn(false);
+                when(encoder.encode("password")).thenReturn("encodedPassword");
+
+                when(roleRepository.findByNome(EPerfil.ROLE_USER)).thenReturn(Optional.empty());
+
+                String content = objectMapper.writeValueAsString(signupDTO);
+                org.junit.jupiter.api.Assertions.assertThrows(Exception.class,
+                                () -> mockMvc.perform(post("/api/auth/signup")
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(content)));
+        }
+
+        @Test
+        void testAuthenticateUser_Failure() throws Exception {
+                CredenciaisDTO credenciais = new CredenciaisDTO();
+                credenciais.setLogin("user");
+                credenciais.setSenha("wrongpassword");
+
+                when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                                .thenThrow(new org.springframework.security.authentication.BadCredentialsException(
+                                                "Bad credentials"));
+
+                String content = objectMapper.writeValueAsString(credenciais);
+                org.junit.jupiter.api.Assertions.assertThrows(Exception.class,
+                                () -> mockMvc.perform(post("/api/auth/signin")
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(content)));
         }
 }

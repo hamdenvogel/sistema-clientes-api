@@ -1,5 +1,6 @@
 package io.github.hvogel.clientes.model.specification;
 
+import java.io.Serial;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import io.github.hvogel.clientes.model.entity.Cliente;
 
 public class ClienteSpecification implements Specification<Cliente> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
     private static final String DATA_CADASTRO = "dataCadastro";
     private static final String DATE_PATTERN_SLASH = "dd/MM/yyyy";
@@ -57,19 +59,22 @@ public class ClienteSpecification implements Specification<Cliente> {
     private Object convertValue(SearchCriteria criteria, Class<?> originalJavaType) {
         Object val = criteria.getValue();
         if (val instanceof String sVal) {
-            if (!criteria.getOperation().equals(io.github.hvogel.clientes.enums.SearchOperation.BETWEEN_DATE)) {
-                if (originalJavaType.equals(LocalDate.class) || criteria.getKey().equals(DATA_CADASTRO)) {
-                    return parseDate(sVal);
-                }
-            } else if (originalJavaType.equals(Integer.class)) {
+            if (originalJavaType.equals(LocalDate.class) || criteria.getKey().equals(DATA_CADASTRO)) {
+                return isNotDateRangeOperation(criteria) ? parseDate(sVal) : sVal;
+            }
+            if (originalJavaType.equals(Integer.class)) {
                 try {
                     return Integer.valueOf(sVal);
                 } catch (NumberFormatException e) {
-                    return val;
+                    return null;
                 }
             }
         }
         return val;
+    }
+
+    private boolean isNotDateRangeOperation(SearchCriteria criteria) {
+        return !criteria.getOperation().equals(io.github.hvogel.clientes.enums.SearchOperation.BETWEEN_DATE);
     }
 
     private LocalDate parseDate(String sVal) {

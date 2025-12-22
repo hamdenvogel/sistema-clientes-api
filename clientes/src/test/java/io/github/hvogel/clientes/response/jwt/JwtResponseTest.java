@@ -15,7 +15,7 @@ class JwtResponseTest {
         assertEquals(1L, response.getId());
         assertEquals("user", response.getUsername());
         assertEquals("email", response.getEmail());
-        assertEquals("ROLE", response.getRoles().get(0));
+        assertEquals("ROLE", response.getRoles().getFirst());
 
         response.setToken("newToken");
         response.setTokenType("Basic");

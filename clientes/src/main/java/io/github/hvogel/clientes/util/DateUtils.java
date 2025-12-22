@@ -16,10 +16,14 @@ public class DateUtils {
 	}
 
 	private static final String PADRAO_FORMATACAO_DATA = "dd/MM/yyyy";
-	public static final Date DATA_INICIO_PADRAO;
+	private static final Date DATA_INICIO_PADRAO;
 
 	static {
 		DATA_INICIO_PADRAO = DateUtils.fromString("01/01/1970");
+	}
+
+	public static Date getDataInicioPadrao() {
+		return (DATA_INICIO_PADRAO != null) ? (Date) DATA_INICIO_PADRAO.clone() : null;
 	}
 
 	public static Date fromString(String dataString) {

@@ -10,12 +10,17 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.RegexPatternTypeFilter;
 
 class DtoCoverageTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(DtoCoverageTest.class);
 
     @Test
     void testAllDtos() {
@@ -28,16 +33,16 @@ class DtoCoverageTest {
         ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
         provider.addIncludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*")));
 
-        AtomicInteger count = new AtomicInteger(0);
         for (String pkg : packages) {
             Set<BeanDefinition> beans = provider.findCandidateComponents(pkg);
             for (BeanDefinition bean : beans) {
                 try {
-                    Class<?> clazz = Class.forName(bean.getBeanClassName());
-                    testDtoClass(clazz);
-                    count.incrementAndGet();
+                    if (bean.getBeanClassName() != null) {
+                        Class<?> clazz = Class.forName(bean.getBeanClassName());
+                        testDtoClass(clazz);
+                    }
                 } catch (ClassNotFoundException e) {
-                    // Ignore
+                    logger.warn("Class not found: {}", bean.getBeanClassName());
                 }
             }
         }
@@ -71,15 +76,14 @@ class DtoCoverageTest {
                     instance = constructor.newInstance();
                 } else {
                     Object[] args = new Object[constructor.getParameterCount()];
-                    // Fill with nulls or defaults
+                    // Fill with nulls
                     for (int i = 0; i < args.length; i++) {
                         args[i] = null;
                     }
                     try {
                         instance = constructor.newInstance(args);
                     } catch (Exception ex) {
-                        // If fails, we skip
-                        return;
+                        logger.debug("Could not instantiate DTO with args: {}", clazz.getName());
                     }
                 }
 
@@ -90,18 +94,13 @@ class DtoCoverageTest {
 
         } catch (Exception e) {
             // Suppress errors, this is a best-effort coverage test
-            System.err.println("Could not test DTO: " + clazz.getName() + " - " + e.getMessage());
+            logger.debug("Could not test DTO: {} - {}", clazz.getName(), e.getMessage());
         }
     }
 
     private void testMethods(Class<?> clazz, Object instance) throws IllegalAccessException, InvocationTargetException {
         for (Method method : clazz.getDeclaredMethods()) {
-            if (method.getName().startsWith("get") ||
-                    method.getName().startsWith("set") ||
-                    method.getName().equals("toString") ||
-                    method.getName().equals("hashCode") ||
-                    method.getName().equals("equals") ||
-                    method.getName().equals("builder")) {
+            if (shouldTestMethod(method)) {
 
                 method.setAccessible(true);
                 try {
@@ -109,16 +108,27 @@ class DtoCoverageTest {
                         method.invoke(instance);
                     }
                 } catch (Exception e) {
-                    // ignore
+                    logger.debug("Error invoking method {} on {}: {}", method.getName(), clazz.getName(),
+                            e.getMessage());
                 }
             }
         }
 
         // Also test inner Builder classes if Lombok is involved heavily
         for (Class<?> inner : clazz.getDeclaredClasses()) {
-            if (inner.getSimpleName().equals("Builder") || inner.getSimpleName().endsWith("Builder")) {
+            if (inner.getSimpleName().endsWith("Builder")) {
                 testDtoClass(inner);
             }
         }
+    }
+
+    private boolean shouldTestMethod(Method method) {
+        String name = method.getName();
+        return name.startsWith("get") ||
+                name.startsWith("set") ||
+                name.equals("toString") ||
+                name.equals("hashCode") ||
+                name.equals("equals") ||
+                name.equals("builder");
     }
 }

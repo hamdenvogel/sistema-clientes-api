@@ -3,9 +3,12 @@ package io.github.hvogel.clientes.rest.dto;
 import java.util.Objects;
 import jakarta.annotation.Generated;
 
-public class TotalRegistrosDTO {	
-	
+public class TotalRegistrosDTO {
+
 	private long total;
+
+	public TotalRegistrosDTO() {
+	}
 
 	@Generated("SparkTools")
 	private TotalRegistrosDTO(Builder builder) {
@@ -62,6 +65,6 @@ public class TotalRegistrosDTO {
 		public TotalRegistrosDTO build() {
 			return new TotalRegistrosDTO(this);
 		}
-	}		
-	
+	}
+
 }

@@ -1,10 +1,15 @@
 package io.github.hvogel.clientes.rest.dto;
 
 import java.util.Objects;
+import jakarta.annotation.Generated;
 
 public class TotalPrestadoresDTO {
 	private long totalPrestadores;
 
+	public TotalPrestadoresDTO() {
+	}
+
+	@Generated("SparkTools")
 	private TotalPrestadoresDTO(Builder builder) {
 		this.totalPrestadores = builder.totalPrestadores;
 	}
@@ -58,5 +63,5 @@ public class TotalPrestadoresDTO {
 			return new TotalPrestadoresDTO(this);
 		}
 	}
-			
+
 }

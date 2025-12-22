@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -54,7 +55,7 @@ class RelatorioServiceImplTest {
     }
 
     @Test
-    void testGerarRelatorioPrestador() throws Exception {
+    void testGerarRelatorioPrestador() throws SQLException, IOException {
         Connection connection = mock(Connection.class);
         when(dataSource.getConnection()).thenReturn(connection);
         when(relatorioPrestador.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
@@ -71,7 +72,7 @@ class RelatorioServiceImplTest {
     }
 
     @Test
-    void testGerarRelatorioCliente() throws Exception {
+    void testGerarRelatorioCliente() throws SQLException, IOException {
         Connection connection = mock(Connection.class);
         when(dataSource.getConnection()).thenReturn(connection);
         when(relatorioCliente.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
@@ -88,7 +89,7 @@ class RelatorioServiceImplTest {
     }
 
     @Test
-    void testGerarRelatorioServicosPrestados() throws Exception {
+    void testGerarRelatorioServicosPrestados() throws SQLException, IOException {
         Connection connection = mock(Connection.class);
         when(dataSource.getConnection()).thenReturn(connection);
         when(relatorioServicosPrestados.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
@@ -105,7 +106,7 @@ class RelatorioServiceImplTest {
     }
 
     @Test
-    void testGerarRelatorioPrestador_Exception() throws Exception {
+    void testGerarRelatorioPrestador_Exception() throws SQLException {
         when(dataSource.getConnection()).thenThrow(new SQLException("Error"));
 
         byte[] result = service.gerarRelatorioPrestador(1L, new Date(), new Date());
@@ -115,7 +116,7 @@ class RelatorioServiceImplTest {
     }
 
     @Test
-    void testGerarRelatorioCliente_Exception() throws Exception {
+    void testGerarRelatorioCliente_Exception() throws SQLException {
         when(dataSource.getConnection()).thenThrow(new SQLException("Error"));
 
         byte[] result = service.gerarRelatorioCliente(1L, new Date(), new Date());
@@ -125,7 +126,7 @@ class RelatorioServiceImplTest {
     }
 
     @Test
-    void testGerarRelatorioServicosPrestados_Exception() throws Exception {
+    void testGerarRelatorioServicosPrestados_Exception() throws SQLException {
         when(dataSource.getConnection()).thenThrow(new SQLException("Error"));
 
         byte[] result = service.gerarRelatorioServicosPrestados(new Date(), new Date());

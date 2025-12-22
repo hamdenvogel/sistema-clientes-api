@@ -57,35 +57,37 @@ class SolucaoControllerTest {
     private io.github.hvogel.clientes.util.HttpServletReqUtil httpServletReqUtil;
 
     @Test
-    void testObterListaSemPaginacao() throws Exception {
+    void testObterListaSemPaginacao() {
         Solucao solucao = new Solucao();
         solucao.setId(1L);
         solucao.setDescricao("Teste");
 
         when(service.obterSolucoes()).thenReturn(Arrays.asList(solucao));
 
-        mockMvc.perform(get("/api/solucao/lista-sem-paginacao")
-                .contentType(MediaType.APPLICATION_JSON))
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> mockMvc
+                .perform(get("/api/solucao/lista-sem-paginacao")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].descricao").value("Teste"));
+                .andExpect(jsonPath("$[0].descricao").value("Teste")));
     }
 
     @Test
-    void testObterPorId() throws Exception {
+    void testObterPorId() {
         Solucao solucao = new Solucao();
         solucao.setId(1L);
         solucao.setDescricao("Teste");
 
         when(service.obterPorId(anyLong())).thenReturn(Optional.of(solucao));
 
-        mockMvc.perform(get("/api/solucao/lista-sem-paginacao/1")
-                .contentType(MediaType.APPLICATION_JSON))
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> mockMvc
+                .perform(get("/api/solucao/lista-sem-paginacao/1")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.descricao").value("Teste"));
+                .andExpect(jsonPath("$.descricao").value("Teste")));
     }
 
     @Test
-    void testAtualizarDescricao() throws Exception {
+    void testAtualizarDescricao() {
         SolucaoDTO dto = new SolucaoDTO();
         dto.setDescricao("Nova Descricao");
 
@@ -96,30 +98,30 @@ class SolucaoControllerTest {
         when(service.obterPorId(anyLong())).thenReturn(Optional.of(solucao));
         when(service.save(any(Solucao.class))).thenReturn(solucao);
 
-        mockMvc.perform(patch("/api/solucao/1")
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> mockMvc.perform(patch("/api/solucao/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.descricao").value("Nova Descricao"));
+                .andExpect(jsonPath("$.descricao").value("Nova Descricao")));
     }
 
     @Test
-    void testTotal() throws Exception {
+    void testTotal() {
         when(service.count()).thenReturn(10L);
 
-        mockMvc.perform(get("/api/solucao/total")
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> mockMvc.perform(get("/api/solucao/total")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.total").value(10));
+                .andExpect(jsonPath("$.total").value(10)));
     }
 
     @Test
-    void testList() throws Exception {
+    void testList() {
         Page<Solucao> page = new PageImpl<>(Arrays.asList(new Solucao()));
         when(service.findAll(any(Pageable.class))).thenReturn(page);
 
-        mockMvc.perform(get("/api/solucao/pesquisa-paginada")
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> mockMvc.perform(get("/api/solucao/pesquisa-paginada")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk()));
     }
 }

@@ -54,13 +54,10 @@ public class GoogleServiceImpl implements GoogleService {
 		}
 
 		try {
-			RestTemplate restTemplate = new RestTemplate();
-			restTemplate.setRequestFactory(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
-			restTemplate.setInterceptors(Collections.singletonList(new RequestResponseLoggingInterceptor()));
-			restTemplate.setErrorHandler(new RestTemplateErrorHandler());
+			RestTemplate restTemplate = createRestTemplate();
 
-			URI verifyUri = URI.create(String.format(RECAPTCHA_URL_TEMPLATE, captcha.getSecret(), token,
-					obterClientIP()));
+			URI verifyUri = URI.create(RECAPTCHA_URL_TEMPLATE.formatted(captcha.getSecret(), token,
+                                    obterClientIP()));
 
 			GoogleRecaptchaDTO googleResponse = restTemplate.getForObject(verifyUri,
 					GoogleRecaptchaDTO.class);
@@ -111,6 +108,14 @@ public class GoogleServiceImpl implements GoogleService {
 		if (captcha == null || captcha.isEmpty()) {
 			throw new RegraNegocioException("É necessário validar o Captcha!");
 		}
+	}
+
+	protected RestTemplate createRestTemplate() {
+		RestTemplate restTemplate = new RestTemplate();
+		restTemplate.setRequestFactory(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
+		restTemplate.setInterceptors(Collections.singletonList(new RequestResponseLoggingInterceptor()));
+		restTemplate.setErrorHandler(new RestTemplateErrorHandler());
+		return restTemplate;
 	}
 
 }

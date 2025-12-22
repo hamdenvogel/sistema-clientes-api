@@ -1,6 +1,5 @@
 package io.github.hvogel.clientes.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.hvogel.clientes.rest.dto.EnderecoDTO;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Test;
@@ -52,13 +51,18 @@ class ObjectMapperUtilTest {
         assertTrue(json.contains("Rua Teste"));
     }
 
-    // Hard to mock JsonProcessingException with simple object, but we rely on
-    // Jackson behavior for IOExceptions.
-    // The previous testGetObjectError covers the exception wrapping logic for
-    // readValue.
-    // For writeValueAsString, typical objects won't fail unless there's a problem
-    // with getters or recursion,
-    // which Jackson handles well or we can simulate with a broken mock if strictly
-    // necessary.
-    // Given 90% goal, covering the main paths is likely sufficient.
+    @Test
+    void testGetJsonOfObjectError() {
+        // Object that Jackson cannot serialize (e.g. self-referencing or something
+        // without getters if configured strictly,
+        // or just a mock that throws exception on access).
+        Object problematicObject = new Object() {
+            @SuppressWarnings("unused")
+            public String getProp() {
+                throw new RuntimeException("Serialization error");
+            }
+        };
+
+        assertThrows(ValidationException.class, () -> ObjectMapperUtil.getJsonOfObject(problematicObject));
+    }
 }

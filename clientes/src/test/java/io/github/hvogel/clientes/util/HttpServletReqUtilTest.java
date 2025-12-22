@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -85,28 +84,7 @@ class HttpServletReqUtilTest {
         when(request.getMethod()).thenReturn("POST");
         String jsonBody = "{\"username\":\"user\", \"password\":\"secret\"}";
 
-        // Mock ServletInputStream
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(jsonBody.getBytes(StandardCharsets.UTF_8));
-        ServletInputStream servletInputStream = new ServletInputStream() {
-            @Override
-            public boolean isFinished() {
-                return byteArrayInputStream.available() == 0;
-            }
-
-            @Override
-            public boolean isReady() {
-                return true;
-            }
-
-            @Override
-            public void setReadListener(ReadListener readListener) {
-            }
-
-            @Override
-            public int read() throws IOException {
-                return byteArrayInputStream.read();
-            }
-        };
+        ServletInputStream servletInputStream = createMockServletInputStream(jsonBody);
 
         when(request.getInputStream()).thenReturn(servletInputStream);
 
@@ -120,27 +98,7 @@ class HttpServletReqUtilTest {
         when(request.getMethod()).thenReturn("PUT");
         String jsonBody = "{\"token\":\"abc-123\"}";
 
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(jsonBody.getBytes(StandardCharsets.UTF_8));
-        ServletInputStream servletInputStream = new ServletInputStream() {
-            @Override
-            public boolean isFinished() {
-                return byteArrayInputStream.available() == 0;
-            }
-
-            @Override
-            public boolean isReady() {
-                return true;
-            }
-
-            @Override
-            public void setReadListener(ReadListener readListener) {
-            }
-
-            @Override
-            public int read() throws IOException {
-                return byteArrayInputStream.read();
-            }
-        };
+        ServletInputStream servletInputStream = createMockServletInputStream(jsonBody);
 
         when(request.getInputStream()).thenReturn(servletInputStream);
 
@@ -175,5 +133,39 @@ class HttpServletReqUtilTest {
         // with Vector
         assertTrue(params.contains("username: user1"));
         assertTrue(params.contains("password: *****"));
+    }
+
+    @Test
+    void testGetPayLoad_IOException() throws IOException {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getMethod()).thenReturn("POST");
+        when(request.getInputStream()).thenThrow(new IOException("Stream error"));
+
+        String payload = reqUtil.getPayLoad(request);
+        assertEquals("", payload);
+    }
+
+    private ServletInputStream createMockServletInputStream(String content) {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+        return new ServletInputStream() {
+            @Override
+            public boolean isFinished() {
+                return byteArrayInputStream.available() == 0;
+            }
+
+            @Override
+            public boolean isReady() {
+                return true;
+            }
+
+            @Override
+            public void setReadListener(ReadListener readListener) {
+            }
+
+            @Override
+            public int read() throws IOException {
+                return byteArrayInputStream.read();
+            }
+        };
     }
 }

@@ -6,27 +6,38 @@ import jakarta.annotation.Generated;
 public class InfoResponseDTO {
 	private String titulo;
 	private String mensagem;
+
+	@Generated("SparkTools")
+	public InfoResponseDTO() {
+	}
+
 	@Generated("SparkTools")
 	private InfoResponseDTO(Builder builder) {
 		this.titulo = builder.titulo;
 		this.mensagem = builder.mensagem;
 	}
+
 	public String getTitulo() {
 		return titulo;
 	}
+
 	public void setTitulo(String titulo) {
 		this.titulo = titulo;
 	}
+
 	public String getMensagem() {
 		return mensagem;
 	}
+
 	public void setMensagem(String mensagem) {
 		this.mensagem = mensagem;
 	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(mensagem, titulo);
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -38,16 +49,17 @@ public class InfoResponseDTO {
 		InfoResponseDTO other = (InfoResponseDTO) obj;
 		return Objects.equals(mensagem, other.mensagem) && Objects.equals(titulo, other.titulo);
 	}
+
 	@Override
 	public String toString() {
 		return "InfoResponseDTO [titulo=" + titulo + ", mensagem=" + mensagem + "]";
 	}
-	
+
 	@Generated("SparkTools")
 	public static Builder builder() {
 		return new Builder();
 	}
-	
+
 	@Generated("SparkTools")
 	public static final class Builder {
 		private String titulo;
@@ -70,5 +82,5 @@ public class InfoResponseDTO {
 			return new InfoResponseDTO(this);
 		}
 	}
-		
+
 }

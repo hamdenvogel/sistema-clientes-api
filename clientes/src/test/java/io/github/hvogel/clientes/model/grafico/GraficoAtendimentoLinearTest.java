@@ -1,11 +1,33 @@
 package io.github.hvogel.clientes.model.grafico;
 
+import io.github.hvogel.clientes.test.base.BaseEqualsHashCodeTest;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.*;
 
-class GraficoAtendimentoLinearTest {
+class GraficoAtendimentoLinearTest extends BaseEqualsHashCodeTest<GraficoAtendimentoLinear> {
+
+    @Override
+    protected GraficoAtendimentoLinear createInstance() {
+        return GraficoAtendimentoLinear.builder()
+                .withMesAno(Collections.singletonList("A"))
+                .build();
+    }
+
+    @Override
+    protected GraficoAtendimentoLinear createEqualInstance() {
+        return GraficoAtendimentoLinear.builder()
+                .withMesAno(Collections.singletonList("A"))
+                .build();
+    }
+
+    @Override
+    protected GraficoAtendimentoLinear createDifferentInstance() {
+        return GraficoAtendimentoLinear.builder()
+                .withMesAno(Collections.singletonList("B"))
+                .build();
+    }
 
     @Test
     void testBuilderAndGetters() {
@@ -18,10 +40,10 @@ class GraficoAtendimentoLinearTest {
 
         assertNotNull(grafico);
         assertEquals(2, grafico.getMonthYear().size());
-        assertEquals("Jan", grafico.getMonthYear().get(0));
-        assertEquals(1, grafico.getEmAtendimento().get(0));
-        assertEquals(0, grafico.getCancelado().get(0));
-        assertEquals(5, grafico.getFinalizado().get(0));
+        assertEquals("Jan", grafico.getMonthYear().getFirst());
+        assertEquals(1, grafico.getEmAtendimento().getFirst());
+        assertEquals(0, grafico.getCancelado().getFirst());
+        assertEquals(5, grafico.getFinalizado().getFirst());
     }
 
     @Test
@@ -32,37 +54,9 @@ class GraficoAtendimentoLinearTest {
         grafico.setCancelado(Collections.singletonList(2));
         grafico.setFinalizado(Collections.singletonList(20));
 
-        assertEquals("Mar", grafico.getMonthYear().get(0));
-        assertEquals(10, grafico.getEmAtendimento().get(0));
-        assertEquals(2, grafico.getCancelado().get(0));
-        assertEquals(20, grafico.getFinalizado().get(0));
-    }
-
-    @Test
-    void testEqualsAndHashCode() {
-        GraficoAtendimentoLinear g1 = GraficoAtendimentoLinear.builder()
-                .withMesAno(Collections.singletonList("A"))
-                .build();
-
-        GraficoAtendimentoLinear g2 = GraficoAtendimentoLinear.builder()
-                .withMesAno(Collections.singletonList("A"))
-                .build();
-
-        GraficoAtendimentoLinear g3 = GraficoAtendimentoLinear.builder()
-                .withMesAno(Collections.singletonList("B"))
-                .build();
-
-        assertEquals(g1, g2);
-        assertNotEquals(g1, g3);
-        assertEquals(g1.hashCode(), g2.hashCode());
-        assertNotEquals(g1.hashCode(), g3.hashCode());
-    }
-
-    @Test
-    void testToString() {
-        GraficoAtendimentoLinear g1 = GraficoAtendimentoLinear.builder()
-                .withMesAno(Collections.singletonList("A"))
-                .build();
-        assertNotNull(g1.toString());
+        assertEquals("Mar", grafico.getMonthYear().getFirst());
+        assertEquals(10, grafico.getEmAtendimento().getFirst());
+        assertEquals(2, grafico.getCancelado().getFirst());
+        assertEquals(20, grafico.getFinalizado().getFirst());
     }
 }

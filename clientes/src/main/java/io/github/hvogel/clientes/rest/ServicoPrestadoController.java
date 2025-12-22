@@ -52,6 +52,8 @@ import io.github.hvogel.clientes.service.ValidadorService;
 import io.github.hvogel.clientes.util.DateUtils;
 import lombok.RequiredArgsConstructor;
 
+import io.github.hvogel.clientes.util.Messages;
+
 @RestController
 @RequestMapping("/api/servicos-prestados")
 @RequiredArgsConstructor
@@ -67,9 +69,9 @@ public class ServicoPrestadoController {
 	private final AtividadeService atividadeService;
 	private final RelatorioService relatorioService;
 
-	private static final String TITULO_INFORMACAO = "Informação";
-	private static final String SERVICO_NAO_ENCONTRADO = "Serviço não encontrado.";
-	private static final String CLIENTE_INEXISTENTE = "Cliente inexistente.";
+	private static final String TITULO_INFORMACAO = Messages.MSG_INFORMACAO;
+	private static final String SERVICO_NAO_ENCONTRADO = Messages.SERVICO_NAO_ENCONTRADO;
+	private static final String CLIENTE_INEXISTENTE = Messages.CLIENTE_INEXISTENTE;
 	private static final String PRESTADOR_INEXISTENTE = "Prestador inexistente.";
 	private static final String NATUREZA_INEXISTENTE = "Natureza inexistente.";
 	private static final String ATIVIDADE_INEXISTENTE = "Atividade inexistente.";
@@ -221,13 +223,13 @@ public class ServicoPrestadoController {
 
 		servicoService.atualizar(servico);
 
-	return InfoResponseDTO.builder()
-			.withMensagem("Serviço atualizado com sucesso.")
-			.withTitulo(TITULO_INFORMACAO)
-			.build();
-}
+		return InfoResponseDTO.builder()
+				.withMensagem("Serviço atualizado com sucesso.")
+				.withTitulo(TITULO_INFORMACAO)
+				.build();
+	}
 
-@DeleteMapping("{id}")
+	@DeleteMapping("{id}")
 	@ResponseStatus(HttpStatus.OK)
 	public InfoResponseDTO deletar(@PathVariable Integer id) {
 
@@ -241,13 +243,13 @@ public class ServicoPrestadoController {
 		}
 		servicoService.deletar(servico);
 
-	return InfoResponseDTO.builder()
-			.withMensagem("Serviço deletado com sucesso.")
-			.withTitulo(TITULO_INFORMACAO)
-			.build();
-}
+		return InfoResponseDTO.builder()
+				.withMensagem("Serviço deletado com sucesso.")
+				.withTitulo(TITULO_INFORMACAO)
+				.build();
+	}
 
-@DeleteMapping("deleta-servicos-cliente/{id}")
+	@DeleteMapping("deleta-servicos-cliente/{id}")
 	@ResponseStatus(HttpStatus.OK)
 	public InfoResponseDTO deletarServicosDeUmCliente(@PathVariable Integer id) {
 
@@ -263,13 +265,13 @@ public class ServicoPrestadoController {
 		String nomeCliente = cliente.getNome();
 		servicoService.deletarPorCliente(cliente.getId());
 
-	return InfoResponseDTO.builder()
-			.withMensagem(String.format("Serviços do cliente %s deletados com sucesso.", nomeCliente))
-			.withTitulo(TITULO_INFORMACAO)
-			.build();
-}
+		return InfoResponseDTO.builder()
+				.withMensagem("Serviços do cliente %s deletados com sucesso.".formatted(nomeCliente))
+				.withTitulo(TITULO_INFORMACAO)
+				.build();
+	}
 
-@GetMapping("{id}")
+	@GetMapping("{id}")
 	public ServicoPrestado acharPorId(@PathVariable Integer id) {
 		return servicoService.obterPorId(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, SERVICO_NAO_ENCONTRADO));
@@ -395,7 +397,7 @@ public class ServicoPrestadoController {
 		Date dataFim = DateUtils.fromString(fim, true);
 
 		if (dataInicio == null) {
-			dataInicio = DateUtils.DATA_INICIO_PADRAO;
+			dataInicio = DateUtils.getDataInicioPadrao();
 		}
 
 		if (dataFim == null) {
@@ -417,11 +419,19 @@ public class ServicoPrestadoController {
 			// sortOrder="field, direction"
 			for (String sortOrder : sort) {
 				String[] parts = sortOrder.split(",");
-				orders.add(new Order(getSortDirection(parts[1]), parts[0]));
+				if (parts.length > 1) {
+					orders.add(new Order(getSortDirection(parts[1]), parts[0]));
+				} else {
+					orders.add(new Order(getSortDirection("asc"), parts[0]));
+				}
 			}
 		} else {
 			// sort=[field, direction]
-			orders.add(new Order(getSortDirection(sort[1]), sort[0]));
+			if (sort.length > 1) {
+				orders.add(new Order(getSortDirection(sort[1]), sort[0]));
+			} else {
+				orders.add(new Order(getSortDirection("asc"), sort[0]));
+			}
 		}
 		return orders;
 	}

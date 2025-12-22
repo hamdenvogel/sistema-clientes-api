@@ -6,6 +6,9 @@ import jakarta.annotation.Generated;
 public class TotalServicosDTO {
 	private long totalServicos;
 
+	public TotalServicosDTO() {
+	}
+
 	@Generated("SparkTools")
 	private TotalServicosDTO(Builder builder) {
 		this.totalServicos = builder.totalServicos;
@@ -61,6 +64,6 @@ public class TotalServicosDTO {
 		public TotalServicosDTO build() {
 			return new TotalServicosDTO(this);
 		}
-	}	
-		
+	}
+
 }

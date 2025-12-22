@@ -18,6 +18,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +31,7 @@ import io.github.hvogel.clientes.service.TotalClientesService;
 import io.github.hvogel.clientes.util.HttpServletReqUtil;
 
 @WebMvcTest(ClienteController.class)
+@WithMockUser
 @AutoConfigureMockMvc(addFilters = false)
 class ClienteControllerTest {
 
@@ -69,6 +72,7 @@ class ClienteControllerTest {
                 when(service.salvar(any(Cliente.class))).thenReturn(entity);
 
                 mockMvc.perform(post("/api/clientes")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(entity)))
                                 .andDo(org.springframework.test.web.servlet.result.MockMvcResultHandlers.print())
@@ -96,7 +100,8 @@ class ClienteControllerTest {
                 when(service.obterPorId(1)).thenReturn(Optional.of(entity));
                 doNothing().when(service).deletar(any(Cliente.class));
 
-                mockMvc.perform(delete("/api/clientes/1"))
+                mockMvc.perform(delete("/api/clientes/1")
+                                .with(csrf()))
                                 .andExpect(status().isOk());
         }
 
@@ -111,6 +116,7 @@ class ClienteControllerTest {
                 when(service.atualizar(any(Cliente.class))).thenReturn(entity);
 
                 mockMvc.perform(put("/api/clientes/1")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(entity)))
                                 .andExpect(status().isOk());
@@ -196,7 +202,8 @@ class ClienteControllerTest {
         void testDelete_NotFound() throws Exception {
                 when(service.obterPorId(999)).thenReturn(Optional.empty());
 
-                mockMvc.perform(delete("/api/clientes/999"))
+                mockMvc.perform(delete("/api/clientes/999")
+                                .with(csrf()))
                                 .andExpect(status().isNotFound());
         }
 
@@ -210,6 +217,7 @@ class ClienteControllerTest {
                 when(service.obterPorId(999)).thenReturn(Optional.empty());
 
                 mockMvc.perform(put("/api/clientes/999")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(entity)))
                                 .andExpect(status().isNotFound());
@@ -227,6 +235,7 @@ class ClienteControllerTest {
                                                 "Erro de negocio"));
 
                 mockMvc.perform(post("/api/clientes")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(entity)))
                                 .andExpect(status().isBadRequest());
@@ -248,5 +257,57 @@ class ClienteControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(entity)))
                                 .andExpect(status().isBadRequest());
+
+        }
+
+        @Test
+        void testRelatorio_Defaults() throws Exception {
+                byte[] pdfContent = new byte[] { 1, 2, 3 };
+                when(relatorioService.gerarRelatorioCliente(any(), any(), any())).thenReturn(pdfContent);
+
+                // No params, should use defaults
+                mockMvc.perform(get("/api/clientes/relatorio"))
+                                .andExpect(status().isOk())
+                                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                                                .bytes(pdfContent));
+        }
+
+        @Test
+        void testListPaginated_ComplexSort() throws Exception {
+                // Formatting sort as field,direction in a single string (handled by line 173
+                // branch)
+                mockMvc.perform(get("/api/clientes/pesquisa-paginada")
+                                .param("sort", "nome,desc")
+                                .param("sort", "id,asc"))
+                                .andExpect(status().isOk());
+        }
+
+        /**
+         * Test the branch where sort is passed as separate elements [field, direction]
+         * This usually happens if ?sort=field&sort=direction or similar, or specific
+         * spring binding behavior.
+         * The code at line 188 handles `else` -> implies `sort[0]` does not contain
+         * ",".
+         * So `sort` array is ["nome", "desc"].
+         */
+        @Test
+        void testListPaginated_SplitSort() throws Exception {
+                // To hit lines 188-198, we need sort array to not have commas in first element.
+                // We can simulate this by passing parameters that bind this way.
+                // Spring typically binds ?sort=nome,desc to ["nome,desc"].
+                // ?sort=nome&sort=desc -> ["nome", "desc"].
+
+                mockMvc.perform(get("/api/clientes/pesquisa-paginada")
+                                .param("sort", "nome")
+                                .param("sort", "desc"))
+                                .andExpect(status().isOk());
+        }
+
+        @Test
+        void testListPaginated_SplitSort_Asc() throws Exception {
+                mockMvc.perform(get("/api/clientes/pesquisa-paginada")
+                                .param("sort", "nome")
+                                .param("sort", "asc"))
+                                .andExpect(status().isOk());
         }
 }

@@ -2,19 +2,14 @@ package io.github.hvogel.clientes.rest;
 
 import io.github.hvogel.clientes.model.entity.Produto;
 import io.github.hvogel.clientes.rest.dto.ProdutoDTO;
-import io.github.hvogel.clientes.security.jwt.AuthEntryPointJwt;
-import io.github.hvogel.clientes.security.jwt.JwtUtils;
 import io.github.hvogel.clientes.service.ProdutoService;
 import io.github.hvogel.clientes.service.TotalProdutosService;
-import io.github.hvogel.clientes.service.impl.UserDetailsServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -28,215 +23,302 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import io.github.hvogel.clientes.test.base.BaseControllerTest;
+
 @WebMvcTest(ProdutoController.class)
 @WithMockUser
-class ProdutoControllerTest {
+@AutoConfigureMockMvc(addFilters = false)
+class ProdutoControllerTest extends BaseControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @MockBean
+        private ProdutoService produtoService;
 
-    @MockBean
-    private ProdutoService produtoService;
+        @MockBean
+        private TotalProdutosService totalProdutosService;
 
-    @MockBean
-    private TotalProdutosService totalProdutosService;
+        @Test
+        void testSalvar() throws Exception {
+                ProdutoDTO dto = new ProdutoDTO();
+                dto.setDescricao("Produto Teste");
+                dto.setPreco(new BigDecimal("10.00"));
 
-    @MockBean
-    private UserDetailsServiceImpl userDetailsService;
+                when(produtoService.salvar(any(Produto.class))).thenReturn(new Produto());
 
-    @MockBean
-    private JwtUtils jwtUtils;
+                mockMvc.perform(post("/api/produtos")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                                .andExpect(status().isCreated());
+        }
 
-    @MockBean
-    private AuthEntryPointJwt unauthorizedHandler;
+        @Test
+        void testObterTodos() throws Exception {
+                when(produtoService.obterTodos()).thenReturn(Collections.emptyList());
 
-    @MockBean
-    private io.github.hvogel.clientes.util.HttpServletReqUtil httpServletReqUtil;
+                mockMvc.perform(get("/api/produtos")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isOk());
+        }
 
-    @Autowired
-    private ObjectMapper objectMapper;
+        @Test
+        void testAtualizar() throws Exception {
+                ProdutoDTO dto = new ProdutoDTO();
+                dto.setDescricao("Produto Atualizado");
+                dto.setPreco(new BigDecimal("20.00"));
+                dto.setId(1);
 
-    @Test
-    void testSalvar() throws Exception {
-        ProdutoDTO dto = new ProdutoDTO();
-        dto.setDescricao("Produto Teste");
-        dto.setPreco(new BigDecimal("10.00"));
+                Produto produto = new Produto();
+                produto.setId(1);
 
-        when(produtoService.salvar(any(Produto.class))).thenReturn(new Produto());
+                when(produtoService.obterPorId(1)).thenReturn(Optional.of(produto));
+                when(produtoService.atualizar(any(Produto.class))).thenReturn(produto);
 
-        mockMvc.perform(post("/api/produtos")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isCreated());
-    }
+                mockMvc.perform(put("/api/produtos/1")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                                .andExpect(status().isOk());
+        }
 
-    @Test
-    void testObterTodos() throws Exception {
-        when(produtoService.obterTodos()).thenReturn(Collections.emptyList());
+        @Test
+        void testDeletar() throws Exception {
+                Produto produto = new Produto();
+                produto.setId(1);
+                when(produtoService.obterPorId(1)).thenReturn(Optional.of(produto));
 
-        mockMvc.perform(get("/api/produtos")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
+                mockMvc.perform(delete("/api/produtos/1")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
 
-    @Test
-    void testAtualizar() throws Exception {
-        ProdutoDTO dto = new ProdutoDTO();
-        dto.setDescricao("Produto Atualizado");
-        dto.setPreco(new BigDecimal("20.00"));
-        dto.setId(1);
+        @Test
+        void testObterPorId() throws Exception {
+                Produto produto = new Produto();
+                produto.setId(1);
+                when(produtoService.obterPorId(1)).thenReturn(Optional.of(produto));
 
-        Produto produto = new Produto();
-        produto.setId(1);
+                mockMvc.perform(get("/api/produtos/1")
+                                .with(csrf()))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id").value(1));
+        }
 
-        when(produtoService.obterPorId(1)).thenReturn(Optional.of(produto));
-        when(produtoService.atualizar(any(Produto.class))).thenReturn(produto);
+        @Test
+        void testObterTotalProdutos() throws Exception {
+                when(totalProdutosService.obterTotalProdutos()).thenReturn(100L);
 
-        mockMvc.perform(put("/api/produtos/1")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk());
-    }
+                mockMvc.perform(get("/api/produtos/totalProdutos")
+                                .with(csrf()))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.totalProdutos").value(100));
+        }
 
-    @Test
-    void testDeletar() throws Exception {
-        Produto produto = new Produto();
-        produto.setId(1);
-        when(produtoService.obterPorId(1)).thenReturn(Optional.of(produto));
+        @Test
+        void testSpecification() throws Exception {
+                when(produtoService.executaCriteria(any(), any()))
+                                .thenReturn(org.springframework.data.domain.Page.empty());
 
-        mockMvc.perform(delete("/api/produtos/1")
-                .with(csrf()))
-                .andExpect(status().isOk());
-    }
+                mockMvc.perform(post("/api/produtos/pesquisa-avancada-criteria")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("[]"))
+                                .andExpect(status().isOk());
+        }
 
-    @Test
-    void testObterPorId() throws Exception {
-        Produto produto = new Produto();
-        produto.setId(1);
-        when(produtoService.obterPorId(1)).thenReturn(Optional.of(produto));
+        @Test
+        void testSalvar_Exception() throws Exception {
+                ProdutoDTO dto = new ProdutoDTO();
+                dto.setDescricao("Produto Erro");
+                dto.setPreco(new BigDecimal("10.00"));
 
-        mockMvc.perform(get("/api/produtos/1")
-                .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1));
-    }
+                when(produtoService.salvar(any(Produto.class)))
+                                .thenThrow(new io.github.hvogel.clientes.exception.RegraNegocioException(
+                                                "Erro salvar"));
 
-    @Test
-    void testObterTotalProdutos() throws Exception {
-        when(totalProdutosService.obterTotalProdutos()).thenReturn(100L);
+                mockMvc.perform(post("/api/produtos")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                                .andExpect(status().isBadRequest());
+        }
 
-        mockMvc.perform(get("/api/produtos/totalProdutos")
-                .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalProdutos").value(100));
-    }
+        @Test
+        void testAtualizar_Exception() throws Exception {
+                ProdutoDTO dto = new ProdutoDTO();
+                dto.setId(1);
+                dto.setDescricao("Produto Erro");
+                dto.setPreco(new BigDecimal("10.00"));
 
-    @Test
-    void testSpecification() throws Exception {
-        when(produtoService.executaCriteria(any(), any())).thenReturn(org.springframework.data.domain.Page.empty());
+                Produto produto = new Produto();
+                produto.setId(1);
+                when(produtoService.obterPorId(1)).thenReturn(Optional.of(produto));
+                when(produtoService.atualizar(any(Produto.class)))
+                                .thenThrow(new io.github.hvogel.clientes.exception.RegraNegocioException(
+                                                "Erro atualizar"));
 
-        mockMvc.perform(post("/api/produtos/pesquisa-avancada-criteria")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("[]"))
-                .andExpect(status().isOk());
-    }
+                mockMvc.perform(put("/api/produtos/1")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                                .andExpect(status().isBadRequest());
+        }
 
-    @Test
-    void testSalvar_Exception() throws Exception {
-        ProdutoDTO dto = new ProdutoDTO();
-        dto.setDescricao("Produto Erro");
-        dto.setPreco(new BigDecimal("10.00"));
+        @Test
+        void testAtualizar_NotFound() throws Exception {
+                ProdutoDTO dto = new ProdutoDTO();
+                dto.setId(1);
+                dto.setDescricao("Produto");
+                dto.setPreco(new BigDecimal("10.00"));
 
-        when(produtoService.salvar(any(Produto.class)))
-                .thenThrow(new io.github.hvogel.clientes.exception.RegraNegocioException("Erro salvar"));
+                when(produtoService.obterPorId(1)).thenReturn(Optional.empty());
 
-        mockMvc.perform(post("/api/produtos")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest());
-    }
+                mockMvc.perform(put("/api/produtos/1")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                                .andExpect(status().isNotFound());
+        }
 
-    @Test
-    void testAtualizar_Exception() throws Exception {
-        ProdutoDTO dto = new ProdutoDTO();
-        dto.setId(1);
-        dto.setDescricao("Produto Erro");
-        dto.setPreco(new BigDecimal("10.00"));
+        @Test
+        void testDeletar_NotFound() throws Exception {
+                when(produtoService.obterPorId(1)).thenReturn(Optional.empty());
 
-        Produto produto = new Produto();
-        produto.setId(1);
-        when(produtoService.obterPorId(1)).thenReturn(Optional.of(produto));
-        when(produtoService.atualizar(any(Produto.class)))
-                .thenThrow(new io.github.hvogel.clientes.exception.RegraNegocioException("Erro atualizar"));
+                mockMvc.perform(delete("/api/produtos/1")
+                                .with(csrf()))
+                                .andExpect(status().isBadRequest()); // Controller returns BAD_REQUEST for delete not
+                                                                     // found
+        }
 
-        mockMvc.perform(put("/api/produtos/1")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest());
-    }
+        @Test
+        void testList() throws Exception {
+                when(produtoService.pesquisarPelaDescricao(any(), any()))
+                                .thenReturn(org.springframework.data.domain.Page.empty());
+                when(produtoService.recuperarTodos(any())).thenReturn(org.springframework.data.domain.Page.empty());
 
-    @Test
-    void testAtualizar_NotFound() throws Exception {
-        ProdutoDTO dto = new ProdutoDTO();
-        dto.setId(1);
-        dto.setDescricao("Produto");
-        dto.setPreco(new BigDecimal("10.00"));
+                mockMvc.perform(get("/api/produtos/pesquisa-avancada")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
 
-        when(produtoService.obterPorId(1)).thenReturn(Optional.empty());
+        @Test
+        void testList_ComplexSort() throws Exception {
+                when(produtoService.recuperarTodos(any())).thenReturn(org.springframework.data.domain.Page.empty());
 
-        mockMvc.perform(put("/api/produtos/1")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isNotFound());
-    }
+                mockMvc.perform(get("/api/produtos/pesquisa-avancada")
+                                .param("sort", "descricao,desc")
+                                .param("sort", "preco,asc")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
 
-    @Test
-    void testDeletar_NotFound() throws Exception {
-        when(produtoService.obterPorId(1)).thenReturn(Optional.empty());
+        @Test
+        void testSpecification_ComplexSort() throws Exception {
+                when(produtoService.executaCriteria(any(), any()))
+                                .thenReturn(org.springframework.data.domain.Page.empty());
 
-        mockMvc.perform(delete("/api/produtos/1")
-                .with(csrf()))
-                .andExpect(status().isBadRequest()); // Controller returns BAD_REQUEST for delete not found
-    }
+                mockMvc.perform(post("/api/produtos/pesquisa-avancada-criteria")
+                                .param("sort", "descricao,desc")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("[]"))
+                                .andExpect(status().isOk());
+        }
 
-    @Test
-    void testList() throws Exception {
-        when(produtoService.pesquisarPelaDescricao(any(), any()))
-                .thenReturn(org.springframework.data.domain.Page.empty());
-        when(produtoService.recuperarTodos(any())).thenReturn(org.springframework.data.domain.Page.empty());
+        @Test
+        void testSpecification_SplitSort() throws Exception {
+                // Test sort passed as separate parameters (missing branch line 167)
+                // sort=descricao&sort=asc -> ["descricao", "asc"]
+                when(produtoService.executaCriteria(any(), any()))
+                                .thenReturn(org.springframework.data.domain.Page.empty());
 
-        mockMvc.perform(get("/api/produtos/pesquisa-avancada")
-                .with(csrf()))
-                .andExpect(status().isOk());
-    }
+                mockMvc.perform(post("/api/produtos/pesquisa-avancada-criteria")
+                                .param("sort", "descricao")
+                                .param("sort", "asc")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("[]"))
+                                .andExpect(status().isOk());
+        }
 
-    @Test
-    void testList_ComplexSort() throws Exception {
-        when(produtoService.recuperarTodos(any())).thenReturn(org.springframework.data.domain.Page.empty());
+        @Test
+        void testSpecification_SplitSort_Desc() throws Exception {
+                when(produtoService.executaCriteria(any(), any()))
+                                .thenReturn(org.springframework.data.domain.Page.empty());
 
-        mockMvc.perform(get("/api/produtos/pesquisa-avancada")
-                .param("sort", "descricao,desc")
-                .param("sort", "preco,asc")
-                .with(csrf()))
-                .andExpect(status().isOk());
-    }
+                mockMvc.perform(post("/api/produtos/pesquisa-avancada-criteria")
+                                .param("sort", "descricao")
+                                .param("sort", "desc")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("[]"))
+                                .andExpect(status().isOk());
+        }
 
-    @Test
-    void testSpecification_ComplexSort() throws Exception {
-        when(produtoService.executaCriteria(any(), any())).thenReturn(org.springframework.data.domain.Page.empty());
+        @Test
+        void testList_SplitSort() throws Exception {
+                // Test sort passed as separate parameters (missing branch line 207)
+                when(produtoService.recuperarTodos(any())).thenReturn(org.springframework.data.domain.Page.empty());
 
-        mockMvc.perform(post("/api/produtos/pesquisa-avancada-criteria")
-                .param("sort", "descricao,desc")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("[]"))
-                .andExpect(status().isOk());
-    }
+                mockMvc.perform(get("/api/produtos/pesquisa-avancada")
+                                .param("sort", "descricao")
+                                .param("sort", "asc")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
+
+        @Test
+        void testList_SplitSort_Desc() throws Exception {
+                when(produtoService.recuperarTodos(any())).thenReturn(org.springframework.data.domain.Page.empty());
+
+                mockMvc.perform(get("/api/produtos/pesquisa-avancada")
+                                .param("sort", "descricao")
+                                .param("sort", "desc")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
+
+        @Test
+        void testList_Descricao() throws Exception {
+                // Test filtering by description
+                when(produtoService.pesquisarPelaDescricao(any(), any()))
+                                .thenReturn(org.springframework.data.domain.Page.empty());
+
+                mockMvc.perform(get("/api/produtos/pesquisa-avancada")
+                                .param("descricao", "Teste")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
+
+        @Test
+        void testObterPorId_NotFound() throws Exception {
+                when(produtoService.obterPorId(999)).thenReturn(Optional.empty());
+
+                mockMvc.perform(get("/api/produtos/999")
+                                .with(csrf()))
+                                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void testList_EmptyDescricao() throws Exception {
+                // Test filtering by empty description, should fallback to recuperarTodos
+                when(produtoService.recuperarTodos(any())).thenReturn(org.springframework.data.domain.Page.empty());
+
+                mockMvc.perform(get("/api/produtos/pesquisa-avancada")
+                                .param("descricao", "")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
+
+        @Test
+        void testList_SingleSortParam() throws Exception {
+                // Test sort format: ?sort=descricao (sort array = ["descricao"])
+                // Should default to ASC and not throw IndexOutOfBounds
+                when(produtoService.recuperarTodos(any())).thenReturn(org.springframework.data.domain.Page.empty());
+
+                mockMvc.perform(get("/api/produtos/pesquisa-avancada")
+                                .param("sort", "descricao")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
 }

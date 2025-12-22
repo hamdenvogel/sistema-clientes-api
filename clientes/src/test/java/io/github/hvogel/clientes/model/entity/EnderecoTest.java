@@ -29,12 +29,95 @@ class EnderecoTest {
         Endereco endereco1 = new Endereco();
         endereco1.setCep("12345-678");
         endereco1.setLogradouro("Rua Test");
+        endereco1.setComplemento("Apto 101");
+        endereco1.setBairro("Centro");
+        endereco1.setLocalidade("São Paulo");
+        endereco1.setUf("SP");
         
         Endereco endereco2 = new Endereco();
         endereco2.setCep("12345-678");
         endereco2.setLogradouro("Rua Test");
+        endereco2.setComplemento("Apto 101");
+        endereco2.setBairro("Centro");
+        endereco2.setLocalidade("São Paulo");
+        endereco2.setUf("SP");
         
         assertEquals(endereco1, endereco2);
+    }
+    
+    @Test
+    void testEqualsWithDifferentBairro() {
+        Endereco endereco1 = new Endereco();
+        endereco1.setCep("12345-678");
+        endereco1.setLogradouro("Rua Test");
+        endereco1.setComplemento("Apto 101");
+        endereco1.setBairro("Centro");
+        endereco1.setLocalidade("São Paulo");
+        endereco1.setUf("SP");
+        
+        Endereco endereco2 = new Endereco();
+        endereco2.setCep("12345-678");
+        endereco2.setLogradouro("Rua Test");
+        endereco2.setComplemento("Apto 101");
+        endereco2.setBairro("Jardim");
+        endereco2.setLocalidade("São Paulo");
+        endereco2.setUf("SP");
+        
+        assertNotEquals(endereco1, endereco2);
+    }
+    
+    @Test
+    void testEqualsWithDifferentComplemento() {
+        Endereco endereco1 = new Endereco();
+        endereco1.setCep("12345-678");
+        endereco1.setComplemento("Apto 101");
+        endereco1.setLocalidade("São Paulo");
+        
+        Endereco endereco2 = new Endereco();
+        endereco2.setCep("12345-678");
+        endereco2.setComplemento("Apto 102");
+        endereco2.setLocalidade("São Paulo");
+        
+        assertNotEquals(endereco1, endereco2);
+    }
+    
+    @Test
+    void testEqualsWithDifferentLocalidade() {
+        Endereco endereco1 = new Endereco();
+        endereco1.setCep("12345-678");
+        endereco1.setLocalidade("São Paulo");
+        
+        Endereco endereco2 = new Endereco();
+        endereco2.setCep("12345-678");
+        endereco2.setLocalidade("Rio de Janeiro");
+        
+        assertNotEquals(endereco1, endereco2);
+    }
+    
+    @Test
+    void testEqualsWithDifferentLogradouro() {
+        Endereco endereco1 = new Endereco();
+        endereco1.setLogradouro("Rua A");
+        endereco1.setCep("12345-678");
+        
+        Endereco endereco2 = new Endereco();
+        endereco2.setLogradouro("Rua B");
+        endereco2.setCep("12345-678");
+        
+        assertNotEquals(endereco1, endereco2);
+    }
+    
+    @Test
+    void testEqualsWithDifferentUf() {
+        Endereco endereco1 = new Endereco();
+        endereco1.setCep("12345-678");
+        endereco1.setUf("SP");
+        
+        Endereco endereco2 = new Endereco();
+        endereco2.setCep("12345-678");
+        endereco2.setUf("RJ");
+        
+        assertNotEquals(endereco1, endereco2);
     }
     
     @Test

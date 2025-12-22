@@ -1,10 +1,32 @@
 package io.github.hvogel.clientes.model.grafico;
 
+import io.github.hvogel.clientes.test.base.BaseEqualsHashCodeTest;
 import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.*;
 
-class GraficoTipoServicoTest {
+class GraficoTipoServicoTest extends BaseEqualsHashCodeTest<GraficoTipoServico> {
+
+    @Override
+    protected GraficoTipoServico createInstance() {
+        return GraficoTipoServico.builder()
+                .withMesAno(Collections.singletonList("A"))
+                .build();
+    }
+
+    @Override
+    protected GraficoTipoServico createEqualInstance() {
+        return GraficoTipoServico.builder()
+                .withMesAno(Collections.singletonList("A"))
+                .build();
+    }
+
+    @Override
+    protected GraficoTipoServico createDifferentInstance() {
+        return GraficoTipoServico.builder()
+                .withMesAno(Collections.singletonList("B"))
+                .build();
+    }
 
     @Test
     void testBuilderAndGetters() {
@@ -15,9 +37,9 @@ class GraficoTipoServicoTest {
                 .build();
 
         assertNotNull(grafico);
-        assertEquals("Jan", grafico.getMonthYear().get(0));
-        assertEquals(10, grafico.getUnitario().get(0));
-        assertEquals(20, grafico.getPacote().get(0));
+        assertEquals("Jan", grafico.getMonthYear().getFirst());
+        assertEquals(10, grafico.getUnitario().getFirst());
+        assertEquals(20, grafico.getPacote().getFirst());
     }
 
     @Test
@@ -27,22 +49,8 @@ class GraficoTipoServicoTest {
         grafico.setUnitario(Collections.singletonList(30));
         grafico.setPacote(Collections.singletonList(40));
 
-        assertEquals("Feb", grafico.getMonthYear().get(0));
-        assertEquals(30, grafico.getUnitario().get(0));
-        assertEquals(40, grafico.getPacote().get(0));
-    }
-
-    @Test
-    void testEqualsAndHashCode() {
-        GraficoTipoServico g1 = GraficoTipoServico.builder().withMesAno(Collections.singletonList("A")).build();
-        GraficoTipoServico g2 = GraficoTipoServico.builder().withMesAno(Collections.singletonList("A")).build();
-        assertEquals(g1, g2);
-        assertEquals(g1.hashCode(), g2.hashCode());
-    }
-
-    @Test
-    void testToString() {
-        GraficoTipoServico g1 = GraficoTipoServico.builder().build();
-        assertNotNull(g1.toString());
+        assertEquals("Feb", grafico.getMonthYear().getFirst());
+        assertEquals(30, grafico.getUnitario().getFirst());
+        assertEquals(40, grafico.getPacote().getFirst());
     }
 }

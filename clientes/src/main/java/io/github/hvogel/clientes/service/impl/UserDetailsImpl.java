@@ -1,5 +1,6 @@
 package io.github.hvogel.clientes.service.impl;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -13,7 +14,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.hvogel.clientes.model.entity.Usuario;
 
 public class UserDetailsImpl implements UserDetails {
-  private static final long serialVersionUID = 1L;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
   private Long id;
 

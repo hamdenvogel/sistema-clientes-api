@@ -30,6 +30,12 @@ import io.github.hvogel.clientes.infra.BaseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.hvogel.clientes.util.Messages;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 @Entity
 @Table(name = "imagem", schema = "meusservicos")
 public class Imagem extends BaseEntity {
@@ -68,7 +74,7 @@ public class Imagem extends BaseEntity {
 		// Required by JPA
 	}
 
-	private static final String DEFAULT_VALUE = "default";
+	private static final String DEFAULT_VALUE = Messages.DEFAULT_VALUE;
 
 	/**
 	 * Create new Image class.
@@ -185,78 +191,6 @@ public class Imagem extends BaseEntity {
 			log.error("Error setting image data", e);
 		}
 		return imagem;
-	}
-
-	public String getFileName() {
-		return fileName;
-	}
-
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
-
-	public String getFileType() {
-		return fileType;
-	}
-
-	public void setFileType(String fileType) {
-		this.fileType = fileType;
-	}
-
-	public long getSize() {
-		return size;
-	}
-
-	public void setSize(long size) {
-		this.size = size;
-	}
-
-	public String getUuid() {
-		return uuid;
-	}
-
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
-
-	public String getSystemName() {
-		return systemName;
-	}
-
-	public void setSystemName(String systemName) {
-		this.systemName = systemName;
-	}
-
-	public byte[] getData() {
-		return data;
-	}
-
-	public void setData(byte[] data) {
-		this.data = data;
-	}
-
-	public Integer getChaveId() {
-		return chaveId;
-	}
-
-	public void setChaveId(Integer chaveId) {
-		this.chaveId = chaveId;
-	}
-
-	public Documento getDocumento() {
-		return documento;
-	}
-
-	public void setDocumento(Documento documento) {
-		this.documento = documento;
-	}
-
-	public String getOriginalFileName() {
-		return originalFileName;
-	}
-
-	public void setOriginalFileName(String originalFileName) {
-		this.originalFileName = originalFileName;
 	}
 
 	@Override

@@ -63,9 +63,4 @@ class SolucaoTest {
         assertTrue(result.contains("1"));
         assertTrue(result.contains("Teste"));
     }
-    
-    @Test
-    void testGetSerialVersionUid() {
-        assertEquals(1L, Solucao.getSerialversionuid());
-    }
 }

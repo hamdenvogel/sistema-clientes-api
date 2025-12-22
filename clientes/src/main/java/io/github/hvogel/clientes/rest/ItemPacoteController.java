@@ -36,13 +36,15 @@ import io.github.hvogel.clientes.service.PacoteService;
 import io.github.hvogel.clientes.service.ServicoPrestadoService;
 import io.github.hvogel.clientes.service.TotalItensPacotesService;
 
+import io.github.hvogel.clientes.util.Messages;
+
 @RestController
 @RequestMapping("/api/item-pacote")
 public class ItemPacoteController {
 
-	private static final String TITULO_INFORMACAO = "Informação";
-	private static final String PACOTE_INEXISTENTE = "Pacote Inexistente";
-	private static final String SERVICO_INEXISTENTE = "Serviço Inexistente.";
+	private static final String TITULO_INFORMACAO = Messages.MSG_INFORMACAO;
+	private static final String PACOTE_INEXISTENTE = Messages.PACOTE_INEXISTENTE;
+	private static final String SERVICO_INEXISTENTE = Messages.SERVICO_INEXISTENTE;
 
 	private final ItemPacoteService itempacoteService;
 	private final PacoteService pacoteService;

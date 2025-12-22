@@ -186,4 +186,99 @@ class PrestadorServiceImplTest {
         Page<Prestador> result = service.executaCriteria(Arrays.asList(criteria), pageable);
         assertEquals(1, result.getTotalElements());
     }
+
+    @Test
+    void testSalvar_AvaliacaoNull() {
+        Prestador prestador = new Prestador();
+        prestador.setNome("Joao");
+        prestador.setCpf("12345678900");
+        prestador.setAvaliacao(null);
+
+        when(repository.findByNome(anyString())).thenReturn(Optional.empty());
+        when(repository.findByCpf(anyString())).thenReturn(Optional.empty());
+
+        assertThrows(ResponseStatusException.class, () -> service.salvar(prestador));
+    }
+
+    @Test
+    void testSalvar_CpfTooLong() {
+        Prestador prestador = new Prestador();
+        prestador.setNome("Joao");
+        prestador.setCpf("1234567890123"); // 13 chars
+        prestador.setAvaliacao(5);
+
+        when(repository.findByNome(anyString())).thenReturn(Optional.empty());
+        when(repository.findByCpf(anyString())).thenReturn(Optional.empty());
+
+        assertThrows(ResponseStatusException.class, () -> service.salvar(prestador));
+    }
+
+    @Test
+    void testAtualizar_DuplicateCpf() {
+        Prestador prestador = new Prestador();
+        prestador.setId(1);
+        prestador.setNome("Joao");
+        prestador.setCpf("12345678900");
+        prestador.setAvaliacao(5);
+
+        when(repository.findByCpfAndIdNot(anyString(), anyInt())).thenReturn(Optional.of(new Prestador()));
+
+        assertThrows(ResponseStatusException.class, () -> service.atualizar(prestador));
+    }
+
+    @Test
+    void testAtualizar_DuplicateNome() {
+        Prestador prestador = new Prestador();
+        prestador.setId(1);
+        prestador.setNome("Joao");
+        prestador.setCpf("12345678900");
+        prestador.setAvaliacao(5);
+
+        when(repository.findByCpfAndIdNot(anyString(), anyInt())).thenReturn(Optional.empty());
+        when(repository.findByNomeAndIdNot(anyString(), anyInt())).thenReturn(Optional.of(new Prestador()));
+
+        assertThrows(ResponseStatusException.class, () -> service.atualizar(prestador));
+    }
+
+    @Test
+    void testAtualizar_CpfTooLong() {
+        Prestador prestador = new Prestador();
+        prestador.setId(1);
+        prestador.setNome("Joao");
+        prestador.setCpf("1234567890123");
+        prestador.setAvaliacao(5);
+
+        when(repository.findByCpfAndIdNot(anyString(), anyInt())).thenReturn(Optional.empty());
+        when(repository.findByNomeAndIdNot(anyString(), anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(ResponseStatusException.class, () -> service.atualizar(prestador));
+    }
+
+    @Test
+    void testAtualizar_AvaliacaoNull() {
+        Prestador prestador = new Prestador();
+        prestador.setId(1);
+        prestador.setNome("Joao");
+        prestador.setCpf("12345678900");
+        prestador.setAvaliacao(null);
+
+        when(repository.findByCpfAndIdNot(anyString(), anyInt())).thenReturn(Optional.empty());
+        when(repository.findByNomeAndIdNot(anyString(), anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(ResponseStatusException.class, () -> service.atualizar(prestador));
+    }
+
+    @Test
+    void testAtualizar_AvaliacaoZero() {
+        Prestador prestador = new Prestador();
+        prestador.setId(1);
+        prestador.setNome("Joao");
+        prestador.setCpf("12345678900");
+        prestador.setAvaliacao(0);
+
+        when(repository.findByCpfAndIdNot(anyString(), anyInt())).thenReturn(Optional.empty());
+        when(repository.findByNomeAndIdNot(anyString(), anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(ResponseStatusException.class, () -> service.atualizar(prestador));
+    }
 }

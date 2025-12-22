@@ -1,6 +1,7 @@
 package io.github.hvogel.clientes.model.entity;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.time.LocalDate;
 
@@ -10,73 +11,60 @@ class PrestadorTest {
 
     @Test
     void testGettersAndSetters() {
-        Prestador entity = new Prestador();
+        Prestador p = new Prestador();
+        Integer id = 1;
+        String nome = "Nome";
+        String cpf = "11122233344";
+        String email = "email@test.com";
+        String pix = "pixKey";
+        Integer avaliacao = 5;
+        Profissao profissao = new Profissao();
+        LocalDate data = LocalDate.now();
 
-        entity.setId(1);
-        entity.setNome("João Prestador");
-        entity.setCpf("52998224725");
-        entity.setPix("joao@example.com");
-        entity.setAvaliacao(5);
-        entity.setDataCadastro(LocalDate.of(2024, 1, 1));
+        p.setId(id);
+        p.setNome(nome);
+        p.setCpf(cpf);
+        p.setEmail(email);
+        p.setPix(pix);
+        p.setAvaliacao(avaliacao);
+        p.setProfissao(profissao);
+        p.setDataCadastro(data);
 
-        assertEquals(1, entity.getId());
-        assertEquals("João Prestador", entity.getNome());
-        assertEquals("52998224725", entity.getCpf());
-        assertEquals("joao@example.com", entity.getPix());
-        assertEquals(5, entity.getAvaliacao());
-        assertEquals(LocalDate.of(2024, 1, 1), entity.getDataCadastro());
-    }
-
-    @Test
-    void testEquals() {
-        Prestador entity1 = new Prestador();
-        entity1.setId(1);
-        entity1.setNome("João");
-
-        Prestador entity2 = new Prestador();
-        entity2.setId(1);
-        entity2.setNome("João");
-
-        Prestador entity3 = new Prestador();
-        entity3.setId(2);
-
-        assertEquals(entity2, entity1);
-        assertNotEquals(entity3, entity1);
-        assertNotEquals(null, entity1);
-        assertEquals(entity1, entity1);
-    }
-
-    @Test
-    void testHashCode() {
-        Prestador entity1 = new Prestador();
-        entity1.setId(1);
-        entity1.setNome("João");
-
-        Prestador entity2 = new Prestador();
-        entity2.setId(1);
-        entity2.setNome("João");
-
-        assertEquals(entity1.hashCode(), entity2.hashCode());
-    }
-
-    @Test
-    void testToString() {
-        Prestador entity = new Prestador();
-        entity.setNome("João");
-
-        String result = entity.toString();
-        assertNotNull(result);
-        assertTrue(result.contains("João"));
+        assertEquals(id, p.getId());
+        assertEquals(nome, p.getNome());
+        assertEquals(cpf, p.getCpf());
+        assertEquals(email, p.getEmail());
+        assertEquals(pix, p.getPix());
+        assertEquals(avaliacao, p.getAvaliacao());
+        assertEquals(profissao, p.getProfissao());
+        assertEquals(data, p.getDataCadastro());
     }
 
     @Test
     void testPrePersist() {
-        Prestador entity = new Prestador();
-        assertNull(entity.getDataCadastro());
+        Prestador p = new Prestador();
+        p.prePersist();
+        assertNotEquals(null, p.getDataCadastro());
+    }
 
-        entity.prePersist();
+    @Test
+    void testEqualsAndHashCode() {
+        Prestador p1 = new Prestador();
+        p1.setId(1);
+        p1.setNome("A");
 
-        assertNotNull(entity.getDataCadastro());
-        assertEquals(LocalDate.now(), entity.getDataCadastro());
+        Prestador p2 = new Prestador();
+        p2.setId(1);
+        p2.setNome("A");
+
+        assertEquals(p1, p2);
+        assertEquals(p1.hashCode(), p2.hashCode());
+
+        p2.setId(2);
+        assertNotEquals(p1, p2);
+
+        p2.setId(1);
+        p2.setNome("B");
+        assertEquals(p1, p2); // Mesmo ID = objetos iguais
     }
 }

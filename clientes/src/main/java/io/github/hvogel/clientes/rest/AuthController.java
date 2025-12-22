@@ -31,13 +31,13 @@ import io.github.hvogel.clientes.security.jwt.JwtUtils;
 import io.github.hvogel.clientes.service.impl.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 
+import io.github.hvogel.clientes.util.Messages;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
-
-  private static final String ROLE_NOT_FOUND_MSG = "Error: Role is not found.";
 
   private final AuthenticationManager authenticationManager;
   private final UsuarioRepository userRepository;
@@ -90,26 +90,26 @@ public class AuthController {
 
     if (strRoles == null) {
       Perfil userRole = roleRepository.findByNome(EPerfil.ROLE_USER)
-          .orElseThrow(() -> new IllegalStateException(ROLE_NOT_FOUND_MSG));
+          .orElseThrow(() -> new IllegalStateException(Messages.ROLE_NOT_FOUND_ERROR));
       roles.add(userRole);
     } else {
       strRoles.forEach(role -> {
         switch (role) {
           case "admin":
             Perfil adminRole = roleRepository.findByNome(EPerfil.ROLE_ADMIN)
-                .orElseThrow(() -> new IllegalStateException(ROLE_NOT_FOUND_MSG));
+                .orElseThrow(() -> new IllegalStateException(Messages.ROLE_NOT_FOUND_ERROR));
             roles.add(adminRole);
 
             break;
           case "mod":
             Perfil modRole = roleRepository.findByNome(EPerfil.ROLE_MODERATOR)
-                .orElseThrow(() -> new IllegalStateException(ROLE_NOT_FOUND_MSG));
+                .orElseThrow(() -> new IllegalStateException(Messages.ROLE_NOT_FOUND_ERROR));
             roles.add(modRole);
 
             break;
           default:
             Perfil userRole = roleRepository.findByNome(EPerfil.ROLE_USER)
-                .orElseThrow(() -> new IllegalStateException(ROLE_NOT_FOUND_MSG));
+                .orElseThrow(() -> new IllegalStateException(Messages.ROLE_NOT_FOUND_ERROR));
             roles.add(userRole);
         }
       });

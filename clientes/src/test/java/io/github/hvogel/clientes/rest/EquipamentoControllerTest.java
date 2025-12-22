@@ -1,7 +1,10 @@
 package io.github.hvogel.clientes.rest;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -93,6 +96,64 @@ class EquipamentoControllerTest {
         when(service.findAll(any(Pageable.class))).thenReturn(page);
 
         mockMvc.perform(get("/api/equipamento/pesquisa-paginada")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testObterPorIdNotFound() throws Exception {
+        when(service.obterPorId(anyLong())).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/equipamento/lista-sem-paginacao/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testListWithFilters() throws Exception {
+        Page<Equipamento> page = new PageImpl<>(Arrays.asList(new Equipamento()));
+        when(service.findByDescricaoContainsAllIgnoreCaseAndServicoPrestadoId(anyString(), anyInt(),
+                any(Pageable.class)))
+                .thenReturn(page);
+
+        mockMvc.perform(get("/api/equipamento/pesquisa-paginada")
+                .param("descricao", "Teste")
+                .param("id-servico-prestado", "1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testListWithFilterIdServico() throws Exception {
+        Page<Equipamento> page = new PageImpl<>(Arrays.asList(new Equipamento()));
+        when(service.findByServicoPrestadoId(anyInt(), any(Pageable.class)))
+                .thenReturn(page);
+
+        mockMvc.perform(get("/api/equipamento/pesquisa-paginada")
+                .param("id-servico-prestado", "1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testListWithSortDesc() throws Exception {
+        Page<Equipamento> page = new PageImpl<>(Arrays.asList(new Equipamento()));
+        when(service.findAll(any(Pageable.class))).thenReturn(page);
+
+        mockMvc.perform(get("/api/equipamento/pesquisa-paginada")
+                .param("sort", "descricao,desc")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testListWithComplexSort() throws Exception {
+        Page<Equipamento> page = new PageImpl<>(Arrays.asList(new Equipamento()));
+        when(service.findAll(any(Pageable.class))).thenReturn(page);
+
+        mockMvc.perform(get("/api/equipamento/pesquisa-paginada")
+                .param("sort", "descricao,asc")
+                .param("sort", "id,desc")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }

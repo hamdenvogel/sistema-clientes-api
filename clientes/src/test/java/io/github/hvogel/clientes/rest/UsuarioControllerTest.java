@@ -52,27 +52,27 @@ class UsuarioControllerTest {
     private io.github.hvogel.clientes.security.jwt.AuthEntryPointJwt unauthorizedHandler;
 
     @Test
-    void testSalvar() throws Exception {
+    void testSalvar() {
         Usuario usuario = new Usuario();
         usuario.setUsername("user");
         usuario.setPassword("password");
 
         when(service.salvar(any(Usuario.class))).thenReturn(usuario);
 
-        mockMvc.perform(post("/api/usuarios")
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> mockMvc.perform(post("/api/usuarios")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(usuario)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated()));
     }
 
     @Test
-    void testObterTotalUsuarios() throws Exception {
+    void testObterTotalUsuarios() {
         when(totalUsuariosService.obterTotalUsuarios()).thenReturn(100L);
 
-        mockMvc.perform(get("/api/usuarios/totalUsuarios")
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> mockMvc.perform(get("/api/usuarios/totalUsuarios")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.totalUsuarios")
-                        .value(100));
+                        .value(100)));
     }
 }

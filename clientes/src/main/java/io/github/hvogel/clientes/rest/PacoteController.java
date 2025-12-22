@@ -32,12 +32,14 @@ import io.github.hvogel.clientes.rest.dto.TotalPacotesDTO;
 import io.github.hvogel.clientes.service.PacoteService;
 import io.github.hvogel.clientes.service.TotalPacotesService;
 
+import io.github.hvogel.clientes.util.Messages;
+
 @RestController
 @RequestMapping("/api/pacote")
 public class PacoteController {
 
-	private static final String MSG_INFO = "Informação";
-	private static final String MSG_PACOTE_NAO_ENCONTRADO = "Pacote não encontrado.";
+	private static final String MSG_INFO = Messages.MSG_INFORMACAO;
+	private static final String MSG_PACOTE_NAO_ENCONTRADO = Messages.PACOTE_NAO_ENCONTRADO;
 
 	private final PacoteService pacoteService;
 	private final TotalPacotesService totalPacotesService;

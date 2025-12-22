@@ -34,316 +34,356 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WithMockUser
 class ItemPacoteControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @MockBean
-    private ItemPacoteService itemPacoteService;
+        @MockBean
+        private ItemPacoteService itemPacoteService;
 
-    @MockBean
-    private PacoteService pacoteService;
+        @MockBean
+        private PacoteService pacoteService;
 
-    @MockBean
-    private ServicoPrestadoService servicoPrestadoService;
+        @MockBean
+        private ServicoPrestadoService servicoPrestadoService;
 
-    @MockBean
-    private TotalItensPacotesService totalItensPacotesService;
+        @MockBean
+        private TotalItensPacotesService totalItensPacotesService;
 
-    @MockBean
-    private UserDetailsServiceImpl userDetailsService;
+        @MockBean
+        private UserDetailsServiceImpl userDetailsService;
 
-    @MockBean
-    private JwtUtils jwtUtils;
+        @MockBean
+        private JwtUtils jwtUtils;
 
-    @MockBean
-    private AuthEntryPointJwt unauthorizedHandler;
+        @MockBean
+        private AuthEntryPointJwt unauthorizedHandler;
 
-    @MockBean
-    private io.github.hvogel.clientes.util.HttpServletReqUtil httpServletReqUtil;
+        @MockBean
+        private io.github.hvogel.clientes.util.HttpServletReqUtil httpServletReqUtil;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+        @Autowired
+        private ObjectMapper objectMapper;
 
-    @Test
-    void testSalvar() throws Exception {
-        ItemPacoteDTO dto = new ItemPacoteDTO();
-        dto.setIdPacote(1);
-        dto.setIdServicoPrestado(1);
+        @Test
+        void testSalvar() throws Exception {
+                ItemPacoteDTO dto = new ItemPacoteDTO();
+                dto.setIdPacote(1);
+                dto.setIdServicoPrestado(1);
 
-        when(pacoteService.obterPorId(1)).thenReturn(Optional.of(new Pacote()));
-        when(servicoPrestadoService.obterPorId(1)).thenReturn(Optional.of(new ServicoPrestado()));
-        when(itemPacoteService.obterPorPacoteEServicoPrestado(1, 1)).thenReturn(Optional.empty());
+                when(pacoteService.obterPorId(1)).thenReturn(Optional.of(new Pacote()));
+                when(servicoPrestadoService.obterPorId(1)).thenReturn(Optional.of(new ServicoPrestado()));
+                when(itemPacoteService.obterPorPacoteEServicoPrestado(1, 1)).thenReturn(Optional.empty());
 
-        mockMvc.perform(post("/api/item-pacote")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isCreated());
-    }
+                mockMvc.perform(post("/api/item-pacote")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                                .andExpect(status().isCreated());
+        }
 
-    @Test
-    void testAtualizar() throws Exception {
-        ItemPacoteDTO dto = new ItemPacoteDTO();
-        dto.setIdPacote(1);
-        dto.setIdServicoPrestado(1);
+        @Test
+        void testAtualizar() throws Exception {
+                ItemPacoteDTO dto = new ItemPacoteDTO();
+                dto.setIdPacote(1);
+                dto.setIdServicoPrestado(1);
 
-        ItemPacote itemPacote = new ItemPacote();
-        itemPacote.setId(1);
+                ItemPacote itemPacote = new ItemPacote();
+                itemPacote.setId(1);
 
-        when(pacoteService.obterPorId(anyInt())).thenReturn(Optional.of(new Pacote()));
-        when(servicoPrestadoService.obterPorId(anyInt())).thenReturn(Optional.of(new ServicoPrestado()));
-        when(itemPacoteService.obterPorId(anyInt())).thenReturn(Optional.of(itemPacote));
-        when(itemPacoteService.atualizar(any())).thenReturn(itemPacote);
+                when(pacoteService.obterPorId(anyInt())).thenReturn(Optional.of(new Pacote()));
+                when(servicoPrestadoService.obterPorId(anyInt())).thenReturn(Optional.of(new ServicoPrestado()));
+                when(itemPacoteService.obterPorId(anyInt())).thenReturn(Optional.of(itemPacote));
+                when(itemPacoteService.atualizar(any())).thenReturn(itemPacote);
 
-        mockMvc.perform(put("/api/item-pacote/1")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk());
-    }
+                mockMvc.perform(put("/api/item-pacote/1")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                                .andExpect(status().isOk());
+        }
 
-    @Test
-    void testDeletar() throws Exception {
-        ItemPacote itemPacote = new ItemPacote();
-        itemPacote.setId(1);
+        @Test
+        void testDeletar() throws Exception {
+                ItemPacote itemPacote = new ItemPacote();
+                itemPacote.setId(1);
 
-        when(itemPacoteService.obterPorId(1)).thenReturn(Optional.of(itemPacote));
+                when(itemPacoteService.obterPorId(1)).thenReturn(Optional.of(itemPacote));
 
-        mockMvc.perform(delete("/api/item-pacote/1")
-                .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mensagem").value("Serviço atualizado ao Pacote com sucesso."));
-    }
+                mockMvc.perform(delete("/api/item-pacote/1")
+                                .with(csrf()))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.mensagem").value("Serviço atualizado ao Pacote com sucesso."));
+        }
 
-    @Test
-    void testDeletarPorPacoteEServicoPrestado() throws Exception {
-        Integer idPacote = 1;
-        Integer idServico = 1;
+        @Test
+        void testDeletarPorPacoteEServicoPrestado() throws Exception {
+                Integer idPacote = 1;
+                Integer idServico = 1;
 
-        ItemPacote itemPacote = new ItemPacote();
-        Pacote pacote = new Pacote();
-        pacote.setId(idPacote);
-        ServicoPrestado servico = new ServicoPrestado();
-        servico.setId(idServico);
-        itemPacote.setPacote(pacote);
-        itemPacote.setServicoPrestado(servico);
+                ItemPacote itemPacote = new ItemPacote();
+                Pacote pacote = new Pacote();
+                pacote.setId(idPacote);
+                ServicoPrestado servico = new ServicoPrestado();
+                servico.setId(idServico);
+                itemPacote.setPacote(pacote);
+                itemPacote.setServicoPrestado(servico);
 
-        when(pacoteService.obterPorId(idPacote)).thenReturn(Optional.of(pacote));
-        when(servicoPrestadoService.obterPorId(idServico)).thenReturn(Optional.of(servico));
-        when(itemPacoteService.obterPorPacoteEServicoPrestado(idPacote, idServico)).thenReturn(Optional.of(itemPacote));
+                when(pacoteService.obterPorId(idPacote)).thenReturn(Optional.of(pacote));
+                when(servicoPrestadoService.obterPorId(idServico)).thenReturn(Optional.of(servico));
+                when(itemPacoteService.obterPorPacoteEServicoPrestado(idPacote, idServico))
+                                .thenReturn(Optional.of(itemPacote));
 
-        mockMvc.perform(delete("/api/item-pacote/pacote/" + idPacote + "/servico/" + idServico)
-                .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mensagem").value("Item do pacote deletado com sucesso."));
-    }
+                mockMvc.perform(delete("/api/item-pacote/pacote/" + idPacote + "/servico/" + idServico)
+                                .with(csrf()))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.mensagem").value("Item do pacote deletado com sucesso."));
+        }
 
-    @Test
-    void testList() throws Exception {
-        when(itemPacoteService.recuperarTodos(any(org.springframework.data.domain.Pageable.class)))
-                .thenReturn(org.springframework.data.domain.Page.empty());
+        @Test
+        void testList() throws Exception {
+                when(itemPacoteService.recuperarTodos(any(org.springframework.data.domain.Pageable.class)))
+                                .thenReturn(org.springframework.data.domain.Page.empty());
 
-        mockMvc.perform(get("/api/item-pacote/pesquisa-paginada")
-                .with(csrf()))
-                .andExpect(status().isOk());
-    }
+                mockMvc.perform(get("/api/item-pacote/pesquisa-paginada")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
 
-    @Test
-    void testObterTotalItensPorPacote() throws Exception {
-        when(totalItensPacotesService.obterTotalItensPacotes(1)).thenReturn(5L);
+        @Test
+        void testListWithComplexSort() throws Exception {
+                when(itemPacoteService.recuperarTodos(any(org.springframework.data.domain.Pageable.class)))
+                                .thenReturn(org.springframework.data.domain.Page.empty());
 
-        mockMvc.perform(get("/api/item-pacote/total-por-pacote/1")
-                .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalItensPacotes").value(5));
+                mockMvc.perform(get("/api/item-pacote/pesquisa-paginada")
+                                .param("sort", "pacote.id,desc")
+                                .param("sort", "servicoPrestado.descricao,asc")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
 
-    }
+        @Test
+        void testListWithFilter() throws Exception {
+                when(itemPacoteService.obterPorIdPacote(anyInt(), any(org.springframework.data.domain.Pageable.class)))
+                                .thenReturn(org.springframework.data.domain.Page.empty());
 
-    @Test
-    void testSalvarPacoteInexistente() throws Exception {
-        ItemPacoteDTO dto = new ItemPacoteDTO();
-        dto.setIdPacote(1);
-        dto.setIdServicoPrestado(1);
+                mockMvc.perform(get("/api/item-pacote/pesquisa-paginada")
+                                .param("pacote", "1")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
 
-        when(pacoteService.obterPorId(1)).thenReturn(Optional.empty());
+        @Test
+        void testObterTotalItensPorPacote() throws Exception {
+                when(totalItensPacotesService.obterTotalItensPacotes(1)).thenReturn(5L);
 
-        mockMvc.perform(post("/api/item-pacote")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
-                        .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals("Pacote Inexistente",
-                        ((org.springframework.web.server.ResponseStatusException) result.getResolvedException())
-                                .getReason()));
-    }
+                mockMvc.perform(get("/api/item-pacote/total-por-pacote/1")
+                                .with(csrf()))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.totalItensPacotes").value(5));
 
-    @Test
-    void testSalvarServicoInexistente() throws Exception {
-        ItemPacoteDTO dto = new ItemPacoteDTO();
-        dto.setIdPacote(1);
-        dto.setIdServicoPrestado(1);
+        }
 
-        when(pacoteService.obterPorId(1)).thenReturn(Optional.of(new Pacote()));
-        when(servicoPrestadoService.obterPorId(1)).thenReturn(Optional.empty());
+        @Test
+        void testSalvarPacoteInexistente() throws Exception {
+                ItemPacoteDTO dto = new ItemPacoteDTO();
+                dto.setIdPacote(1);
+                dto.setIdServicoPrestado(1);
 
-        mockMvc.perform(post("/api/item-pacote")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
-                        .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals("Serviço Inexistente.",
-                        ((org.springframework.web.server.ResponseStatusException) result.getResolvedException())
-                                .getReason()));
-    }
+                when(pacoteService.obterPorId(1)).thenReturn(Optional.empty());
 
-    @Test
-    void testSalvarItemJaExistente() throws Exception {
-        ItemPacoteDTO dto = new ItemPacoteDTO();
-        dto.setIdPacote(1);
-        dto.setIdServicoPrestado(1);
+                mockMvc.perform(post("/api/item-pacote")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
+                                                .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals("Pacote Inexistente",
+                                                ((org.springframework.web.server.ResponseStatusException) result
+                                                                .getResolvedException())
+                                                                .getReason()));
+        }
 
-        ServicoPrestado servico = new ServicoPrestado();
-        servico.setDescricao("Serviço Teste");
+        @Test
+        void testSalvarServicoInexistente() throws Exception {
+                ItemPacoteDTO dto = new ItemPacoteDTO();
+                dto.setIdPacote(1);
+                dto.setIdServicoPrestado(1);
 
-        when(pacoteService.obterPorId(1)).thenReturn(Optional.of(new Pacote()));
-        when(servicoPrestadoService.obterPorId(1)).thenReturn(Optional.of(servico));
-        when(itemPacoteService.obterPorPacoteEServicoPrestado(1, 1)).thenReturn(Optional.of(new ItemPacote()));
+                when(pacoteService.obterPorId(1)).thenReturn(Optional.of(new Pacote()));
+                when(servicoPrestadoService.obterPorId(1)).thenReturn(Optional.empty());
 
-        mockMvc.perform(post("/api/item-pacote")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
-                        .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(
-                        ((org.springframework.web.server.ResponseStatusException) result.getResolvedException())
-                                .getReason().contains("já cadastrados")));
-    }
+                mockMvc.perform(post("/api/item-pacote")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
+                                                .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals(
+                                                "Serviço Inexistente.",
+                                                ((org.springframework.web.server.ResponseStatusException) result
+                                                                .getResolvedException())
+                                                                .getReason()));
+        }
 
-    @Test
-    void testAtualizarPacoteInexistente() throws Exception {
-        ItemPacoteDTO dto = new ItemPacoteDTO();
-        dto.setIdPacote(1);
-        dto.setIdServicoPrestado(1);
+        @Test
+        void testSalvarItemJaExistente() throws Exception {
+                ItemPacoteDTO dto = new ItemPacoteDTO();
+                dto.setIdPacote(1);
+                dto.setIdServicoPrestado(1);
 
-        when(pacoteService.obterPorId(1)).thenReturn(Optional.empty());
+                ServicoPrestado servico = new ServicoPrestado();
+                servico.setDescricao("Serviço Teste");
 
-        mockMvc.perform(put("/api/item-pacote/1")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
-                        .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals("Pacote Inexistente",
-                        ((org.springframework.web.server.ResponseStatusException) result.getResolvedException())
-                                .getReason()));
-    }
+                when(pacoteService.obterPorId(1)).thenReturn(Optional.of(new Pacote()));
+                when(servicoPrestadoService.obterPorId(1)).thenReturn(Optional.of(servico));
+                when(itemPacoteService.obterPorPacoteEServicoPrestado(1, 1)).thenReturn(Optional.of(new ItemPacote()));
 
-    @Test
-    void testAtualizarServicoInexistente() throws Exception {
-        ItemPacoteDTO dto = new ItemPacoteDTO();
-        dto.setIdPacote(1);
-        dto.setIdServicoPrestado(1);
+                mockMvc.perform(post("/api/item-pacote")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
+                                                .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(
+                                                ((org.springframework.web.server.ResponseStatusException) result
+                                                                .getResolvedException())
+                                                                .getReason().contains("já cadastrados")));
+        }
 
-        when(pacoteService.obterPorId(1)).thenReturn(Optional.of(new Pacote()));
-        when(servicoPrestadoService.obterPorId(1)).thenReturn(Optional.empty());
+        @Test
+        void testAtualizarPacoteInexistente() throws Exception {
+                ItemPacoteDTO dto = new ItemPacoteDTO();
+                dto.setIdPacote(1);
+                dto.setIdServicoPrestado(1);
 
-        mockMvc.perform(put("/api/item-pacote/1")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
-                        .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals("Serviço Inexistente.",
-                        ((org.springframework.web.server.ResponseStatusException) result.getResolvedException())
-                                .getReason()));
-    }
+                when(pacoteService.obterPorId(1)).thenReturn(Optional.empty());
 
-    @Test
-    void testAtualizarItemNaoEncontrado() throws Exception {
-        ItemPacoteDTO dto = new ItemPacoteDTO();
-        dto.setIdPacote(1);
-        dto.setIdServicoPrestado(1);
+                mockMvc.perform(put("/api/item-pacote/1")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
+                                                .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals("Pacote Inexistente",
+                                                ((org.springframework.web.server.ResponseStatusException) result
+                                                                .getResolvedException())
+                                                                .getReason()));
+        }
 
-        when(pacoteService.obterPorId(1)).thenReturn(Optional.of(new Pacote()));
-        when(servicoPrestadoService.obterPorId(1)).thenReturn(Optional.of(new ServicoPrestado()));
-        when(itemPacoteService.obterPorId(1)).thenReturn(Optional.empty());
+        @Test
+        void testAtualizarServicoInexistente() throws Exception {
+                ItemPacoteDTO dto = new ItemPacoteDTO();
+                dto.setIdPacote(1);
+                dto.setIdServicoPrestado(1);
 
-        mockMvc.perform(put("/api/item-pacote/1")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
-                        .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals("Item não encontrado.",
-                        ((org.springframework.web.server.ResponseStatusException) result.getResolvedException())
-                                .getReason()));
-    }
+                when(pacoteService.obterPorId(1)).thenReturn(Optional.of(new Pacote()));
+                when(servicoPrestadoService.obterPorId(1)).thenReturn(Optional.empty());
 
-    @Test
-    void testDeletarItemNaoEncontrado() throws Exception {
-        when(itemPacoteService.obterPorId(1)).thenReturn(Optional.empty());
+                mockMvc.perform(put("/api/item-pacote/1")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
+                                                .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals(
+                                                "Serviço Inexistente.",
+                                                ((org.springframework.web.server.ResponseStatusException) result
+                                                                .getResolvedException())
+                                                                .getReason()));
+        }
 
-        mockMvc.perform(delete("/api/item-pacote/1")
-                .with(csrf()))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
-                        .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals("Item não encontrado.",
-                        ((org.springframework.web.server.ResponseStatusException) result.getResolvedException())
-                                .getReason()));
-    }
+        @Test
+        void testAtualizarItemNaoEncontrado() throws Exception {
+                ItemPacoteDTO dto = new ItemPacoteDTO();
+                dto.setIdPacote(1);
+                dto.setIdServicoPrestado(1);
 
-    @Test
-    void testDeletarPorPacoteInexistente() throws Exception {
-        when(pacoteService.obterPorId(1)).thenReturn(Optional.empty());
+                when(pacoteService.obterPorId(1)).thenReturn(Optional.of(new Pacote()));
+                when(servicoPrestadoService.obterPorId(1)).thenReturn(Optional.of(new ServicoPrestado()));
+                when(itemPacoteService.obterPorId(1)).thenReturn(Optional.empty());
 
-        mockMvc.perform(delete("/api/item-pacote/pacote/1/servico/1")
-                .with(csrf()))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
-                        .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals("Pacote Inexistente",
-                        ((org.springframework.web.server.ResponseStatusException) result.getResolvedException())
-                                .getReason()));
-    }
+                mockMvc.perform(put("/api/item-pacote/1")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(dto)))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
+                                                .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals(
+                                                "Item não encontrado.",
+                                                ((org.springframework.web.server.ResponseStatusException) result
+                                                                .getResolvedException())
+                                                                .getReason()));
+        }
 
-    @Test
-    void testDeletarPorServicoInexistente() throws Exception {
-        when(pacoteService.obterPorId(1)).thenReturn(Optional.of(new Pacote()));
-        when(servicoPrestadoService.obterPorId(1)).thenReturn(Optional.empty());
+        @Test
+        void testDeletarItemNaoEncontrado() throws Exception {
+                when(itemPacoteService.obterPorId(1)).thenReturn(Optional.empty());
 
-        mockMvc.perform(delete("/api/item-pacote/pacote/1/servico/1")
-                .with(csrf()))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
-                        .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals("Serviço Inexistente.",
-                        ((org.springframework.web.server.ResponseStatusException) result.getResolvedException())
-                                .getReason()));
-    }
+                mockMvc.perform(delete("/api/item-pacote/1")
+                                .with(csrf()))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
+                                                .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals(
+                                                "Item não encontrado.",
+                                                ((org.springframework.web.server.ResponseStatusException) result
+                                                                .getResolvedException())
+                                                                .getReason()));
+        }
 
-    @Test
-    void testDeletarPorItemNaoEncontrado() throws Exception {
-        when(pacoteService.obterPorId(1)).thenReturn(Optional.of(new Pacote()));
-        when(servicoPrestadoService.obterPorId(1)).thenReturn(Optional.of(new ServicoPrestado()));
-        when(itemPacoteService.obterPorPacoteEServicoPrestado(1, 1)).thenReturn(Optional.empty());
+        @Test
+        void testDeletarPorPacoteInexistente() throws Exception {
+                when(pacoteService.obterPorId(1)).thenReturn(Optional.empty());
 
-        mockMvc.perform(delete("/api/item-pacote/pacote/1/servico/1")
-                .with(csrf()))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
-                        .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
-                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(
-                        ((org.springframework.web.server.ResponseStatusException) result.getResolvedException())
-                                .getReason().contains("Itens de Pacote e Serviço Prestado não")));
-    }
+                mockMvc.perform(delete("/api/item-pacote/pacote/1/servico/1")
+                                .with(csrf()))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
+                                                .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals("Pacote Inexistente",
+                                                ((org.springframework.web.server.ResponseStatusException) result
+                                                                .getResolvedException())
+                                                                .getReason()));
+        }
+
+        @Test
+        void testDeletarPorServicoInexistente() throws Exception {
+                when(pacoteService.obterPorId(1)).thenReturn(Optional.of(new Pacote()));
+                when(servicoPrestadoService.obterPorId(1)).thenReturn(Optional.empty());
+
+                mockMvc.perform(delete("/api/item-pacote/pacote/1/servico/1")
+                                .with(csrf()))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
+                                                .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertEquals(
+                                                "Serviço Inexistente.",
+                                                ((org.springframework.web.server.ResponseStatusException) result
+                                                                .getResolvedException())
+                                                                .getReason()));
+        }
+
+        @Test
+        void testDeletarPorItemNaoEncontrado() throws Exception {
+                when(pacoteService.obterPorId(1)).thenReturn(Optional.of(new Pacote()));
+                when(servicoPrestadoService.obterPorId(1)).thenReturn(Optional.of(new ServicoPrestado()));
+                when(itemPacoteService.obterPorPacoteEServicoPrestado(1, 1)).thenReturn(Optional.empty());
+
+                mockMvc.perform(delete("/api/item-pacote/pacote/1/servico/1")
+                                .with(csrf()))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(result
+                                                .getResolvedException() instanceof org.springframework.web.server.ResponseStatusException))
+                                .andExpect(result -> org.junit.jupiter.api.Assertions.assertTrue(
+                                                ((org.springframework.web.server.ResponseStatusException) result
+                                                                .getResolvedException())
+                                                                .getReason()
+                                                                .contains("Itens de Pacote e Serviço Prestado não")));
+        }
 }

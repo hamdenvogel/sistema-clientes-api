@@ -63,21 +63,31 @@ class DocServiceTest {
 
     @Test
     void testChangeHTML() {
-        // Requires DF1.docx to exist in run directory.
-        // We assume it exists as per file listing.
+        // Create dummy DF1.docx
+        new Document().saveToFile("DF1.docx", FileFormat.Docx_2013);
+
         assertDoesNotThrow(() -> docService.changeHTML());
 
         File file = new File("savechange2.docx");
         assertTrue(file.exists());
-        // if (file.exists()) file.delete(); // Optional cleanup
+
+        // Clean up
+        new File("DF1.docx").delete();
+        if (file.exists())
+            file.delete();
     }
 
     @Test
     void testLoadHTML() {
-        // Requires Paipa_Modelo.docx
+        // Create dummy Paipa_Modelo.docx
+        new Document().saveToFile("Paipa_Modelo.docx", FileFormat.Docx_2013);
+
         byte[] result = docService.loadHTML();
         assertNotNull(result);
         assertTrue(result.length > 0);
+
+        // Clean up
+        new File("Paipa_Modelo.docx").delete();
     }
 
     @Test
