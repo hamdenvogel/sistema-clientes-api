@@ -54,7 +54,7 @@ public class ReCaptchaAttemptServiceImpl implements ReCaptchaAttemptService {
 
 	@Override
 	public String reCapthaSizeOfCacheVersusTotalAttempts() {
-		return String.format("Tentativas: %s/%s", this.contador, MAX_ATTEMPT);
+		return "Tentativas: %s/%s".formatted(this.contador, MAX_ATTEMPT);
 	}
 
 }

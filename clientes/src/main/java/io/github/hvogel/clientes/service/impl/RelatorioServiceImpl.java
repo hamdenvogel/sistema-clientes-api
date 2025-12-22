@@ -20,6 +20,8 @@ import net.sf.jasperreports.engine.JasperRunManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.hvogel.clientes.util.Messages;
+
 @Service
 @RequiredArgsConstructor
 public class RelatorioServiceImpl implements RelatorioService {
@@ -37,8 +39,8 @@ public class RelatorioServiceImpl implements RelatorioService {
 
 	private final DataSource dataSource;
 
-	private static final String DATA_INICIO = "DATA_INICIO";
-	private static final String DATA_FIM = "DATA_FIM";
+	private static final String DATA_INICIO = Messages.PARAM_DATA_INICIO;
+	private static final String DATA_FIM = Messages.PARAM_DATA_FIM;
 
 	@Override
 	public byte[] gerarRelatorioPrestador(Long idPrestador, Date dataInicio, Date dataFim) {

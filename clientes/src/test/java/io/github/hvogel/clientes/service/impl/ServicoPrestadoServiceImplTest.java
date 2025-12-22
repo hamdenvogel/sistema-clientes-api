@@ -273,4 +273,47 @@ class ServicoPrestadoServiceImplTest {
         when(repository.obterServicosAindaNaoVinculados(any(Pageable.class))).thenReturn(Page.empty());
         assertNotNull(service.obterServicosAindaNaoVinculados(pageable));
     }
+
+    @Test
+    void testValidarValoresIniciaisAlteracao() {
+        doNothing().when(validadorService).validarData(anyString());
+        doNothing().when(validadorService).validarValorNumerico(anyString());
+        doNothing().when(validadorService).validarStatus(anyString());
+        doNothing().when(validadorService).validarTipoServico(anyString());
+        doNothing().when(googleService).validarCaptchaPreenchido(anyString());
+
+        assertDoesNotThrow(
+                () -> service.validarValoresIniciaisAlteracao("01/01/2023", "100", "status", "captcha", "tipo"));
+    }
+
+    @Test
+    void testFindAllServicoPrestadoProjectionDTO() {
+        when(repository.findAllServicoPrestadoProjectionDTO()).thenReturn(Arrays.asList());
+        List<io.github.hvogel.clientes.rest.dto.ServicoPrestadoProjectionDTO> result = service
+                .findAllServicoPrestadoProjectionDTO();
+        assertNotNull(result);
+    }
+
+    @Test
+    void testPesquisarPorDescricao_Pageable() {
+        Pageable pageable = PageRequest.of(0, 10);
+        when(repository.findByDescricaoContainsAllIgnoreCase(anyString(), any(Pageable.class)))
+                .thenReturn(Page.empty());
+        assertNotNull(service.pesquisarPorDescricao("desc", pageable));
+    }
+
+    @Test
+    void testPesquisarPorIdCliente_Pageable() {
+        Pageable pageable = PageRequest.of(0, 10);
+        when(repository.findByIdCliente(anyInt(), any(Pageable.class))).thenReturn(Page.empty());
+        assertNotNull(service.pesquisarPorIdCliente(1, pageable));
+    }
+
+    @Test
+    void testDelegateMethods() {
+        when(repository.tipoUnitario()).thenReturn(Arrays.asList(1));
+        when(repository.tipoPacote()).thenReturn(Arrays.asList(2));
+        assertNotNull(service.tipoUnitario());
+        assertNotNull(service.tipoPacote());
+    }
 }

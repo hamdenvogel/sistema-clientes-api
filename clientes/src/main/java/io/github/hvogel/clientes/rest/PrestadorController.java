@@ -41,12 +41,14 @@ import io.github.hvogel.clientes.service.RelatorioService;
 import io.github.hvogel.clientes.service.TotalPrestadoresService;
 import io.github.hvogel.clientes.util.DateUtils;
 
+import io.github.hvogel.clientes.util.Messages;
+
 @RestController
 @RequestMapping("/api/prestador")
 public class PrestadorController {
 
-	private static final String TITULO_INFORMACAO = "Informação";
-	private static final String PRESTADOR_NAO_ENCONTRADO = "Prestador não encontrado.";
+	private static final String TITULO_INFORMACAO = Messages.MSG_INFORMACAO;
+	private static final String PRESTADOR_NAO_ENCONTRADO = Messages.PRESTADOR_NAO_ENCONTRADO;
 
 	private final PrestadorService prestadorService;
 	private final ProfissaoService profissaoService;
@@ -121,28 +123,28 @@ public class PrestadorController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
 
-	return InfoResponseDTO.builder()
-			.withMensagem("Prestador atualizado com sucesso.")
-			.withTitulo(TITULO_INFORMACAO)
-			.build();
-}
+		return InfoResponseDTO.builder()
+				.withMensagem("Prestador atualizado com sucesso.")
+				.withTitulo(TITULO_INFORMACAO)
+				.build();
+	}
 
-@DeleteMapping("{id}")
-@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-@ResponseStatus(HttpStatus.OK)
-public InfoResponseDTO deletar(@PathVariable Integer id) {
+	@DeleteMapping("{id}")
+	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+	@ResponseStatus(HttpStatus.OK)
+	public InfoResponseDTO deletar(@PathVariable Integer id) {
 
-	Prestador prestador = prestadorService.obterPorId(id)
-			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRESTADOR_NAO_ENCONTRADO));
-	prestadorService.deletar(prestador);
+		Prestador prestador = prestadorService.obterPorId(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRESTADOR_NAO_ENCONTRADO));
+		prestadorService.deletar(prestador);
 
-	return InfoResponseDTO.builder()
-			.withMensagem("Prestador deletado com sucesso.")
-			.withTitulo(TITULO_INFORMACAO)
-			.build();
-}
+		return InfoResponseDTO.builder()
+				.withMensagem("Prestador deletado com sucesso.")
+				.withTitulo(TITULO_INFORMACAO)
+				.build();
+	}
 
-@GetMapping
+	@GetMapping
 	public List<Prestador> obterTodos() {
 		return prestadorService.obterTodos();
 	}
@@ -195,49 +197,22 @@ public InfoResponseDTO deletar(@PathVariable Integer id) {
 			@RequestParam(value = "sort", defaultValue = "nome,asc") String[] sort,
 			@RequestBody List<SearchCriteria> searchCriteria) {
 
-		List<Order> orders = new ArrayList<>();
-
-		if (sort[0].contains(",")) {
-			// Faz o sort em mais de duas colunas.
-			// sortOrder="field, direction"
-			Direction direction;
-			for (String sortOrder : sort) {
-				String[] parts = sortOrder.split(",");
-
-				if ("asc".equals(parts[1])) {
-					direction = Direction.ASC;
-				} else {
-					direction = Direction.DESC;
-				}
-
-				orders.add(new Order(direction, parts[0]));
-			}
-		} else {
-			// sort=[field, direction]
-			Direction direction;
-			if ("asc".equals(sort[1])) {
-				direction = Direction.ASC;
-			} else {
-				direction = Direction.DESC;
-			}
-
-			orders.add(new Order(direction, sort[0]));
-		}
+		List<Order> orders = buildSortOrders(sort);
 
 		Pageable pageable = PageRequest.of(pagina, tamanhoPagina, Sort.by(orders));
-	return prestadorService.executaCriteria(searchCriteria, pageable);
-}
+		return prestadorService.executaCriteria(searchCriteria, pageable);
+	}
 
-@GetMapping("/relatorio")
-public ResponseEntity<byte[]> relatorioPrestador(
-		@RequestParam(value = "id", required = false, defaultValue = "") Long id,
-		@RequestParam(value = "inicio", required = false, defaultValue = "") String inicio,
-		@RequestParam(value = "fim", required = false, defaultValue = "") String fim) {
+	@GetMapping("/relatorio")
+	public ResponseEntity<byte[]> relatorioPrestador(
+			@RequestParam(value = "id", required = false, defaultValue = "") Long id,
+			@RequestParam(value = "inicio", required = false, defaultValue = "") String inicio,
+			@RequestParam(value = "fim", required = false, defaultValue = "") String fim) {
 		Date dataInicio = DateUtils.fromString(inicio);
 		Date dataFim = DateUtils.fromString(fim, true);
 
 		if (dataInicio == null) {
-			dataInicio = DateUtils.DATA_INICIO_PADRAO;
+			dataInicio = DateUtils.getDataInicioPadrao();
 		}
 
 		if (dataFim == null) {
@@ -249,10 +224,10 @@ public ResponseEntity<byte[]> relatorioPrestador(
 		String fileName = "relatorio-prestador.pdf";
 		headers.setContentDispositionFormData("inline; filename=\"" + fileName + "\"", fileName);
 		headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
-	return new ResponseEntity<>(relatorioPrestador, headers, HttpStatus.OK);
-}
+		return new ResponseEntity<>(relatorioPrestador, headers, HttpStatus.OK);
+	}
 
-private List<Order> buildSortOrders(String[] sort) {
+	private List<Order> buildSortOrders(String[] sort) {
 		List<Order> orders = new ArrayList<>();
 
 		if (sort[0].contains(",")) {
@@ -264,8 +239,11 @@ private List<Order> buildSortOrders(String[] sort) {
 				orders.add(new Order(direction, sortParts[0]));
 			}
 		} else {
-			// sort=[field, direction]
-			Direction direction = "asc".equals(sort[1]) ? Direction.ASC : Direction.DESC;
+			// sort=[field, direction] or sort=[field]
+			Direction direction = Direction.ASC;
+			if (sort.length > 1) {
+				direction = "asc".equals(sort[1]) ? Direction.ASC : Direction.DESC;
+			}
 			orders.add(new Order(direction, sort[0]));
 		}
 

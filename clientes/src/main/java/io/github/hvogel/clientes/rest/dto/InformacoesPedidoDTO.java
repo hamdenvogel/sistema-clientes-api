@@ -6,13 +6,16 @@ import java.util.Objects;
 import jakarta.annotation.Generated;
 import java.util.Collections;
 
-
 public class InformacoesPedidoDTO {
 	private Integer codigo;
-    private BigDecimal total;
-    private String dataPedido;
-    private String status;
-    private List<InformacaoItemPedidoDTO> items;
+	private BigDecimal total;
+	private String dataPedido;
+	private String status;
+	private List<InformacaoItemPedidoDTO> items;
+
+	public InformacoesPedidoDTO() {
+	}
+
 	@Generated("SparkTools")
 	private InformacoesPedidoDTO(Builder builder) {
 		this.codigo = builder.codigo;
@@ -21,40 +24,52 @@ public class InformacoesPedidoDTO {
 		this.status = builder.status;
 		this.items = builder.items;
 	}
+
 	public Integer getCodigo() {
 		return codigo;
 	}
+
 	public void setCodigo(Integer codigo) {
 		this.codigo = codigo;
 	}
+
 	public BigDecimal getTotal() {
 		return total;
 	}
+
 	public void setTotal(BigDecimal total) {
 		this.total = total;
 	}
+
 	public String getDataPedido() {
 		return dataPedido;
 	}
+
 	public void setDataPedido(String dataPedido) {
 		this.dataPedido = dataPedido;
 	}
+
 	public String getStatus() {
 		return status;
 	}
+
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
 	public List<InformacaoItemPedidoDTO> getItems() {
 		return items;
 	}
+
 	public void setItems(List<InformacaoItemPedidoDTO> items) {
 		this.items = items;
 	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(codigo, dataPedido, items, status, total);
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -68,15 +83,18 @@ public class InformacoesPedidoDTO {
 				&& Objects.equals(items, other.items) && Objects.equals(status, other.status)
 				&& Objects.equals(total, other.total);
 	}
+
 	@Override
 	public String toString() {
 		return "InformacoesPedidoDTO [codigo=" + codigo + ", total=" + total + ", dataPedido=" + dataPedido
 				+ ", status=" + status + ", items=" + items + "]";
 	}
+
 	@Generated("SparkTools")
 	public static Builder builder() {
 		return new Builder();
 	}
+
 	@Generated("SparkTools")
 	public static final class Builder {
 		private Integer codigo;
@@ -116,6 +134,6 @@ public class InformacoesPedidoDTO {
 		public InformacoesPedidoDTO build() {
 			return new InformacoesPedidoDTO(this);
 		}
-	}	
-        
+	}
+
 }

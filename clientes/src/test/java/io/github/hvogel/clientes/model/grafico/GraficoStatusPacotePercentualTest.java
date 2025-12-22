@@ -1,11 +1,33 @@
 package io.github.hvogel.clientes.model.grafico;
 
+import io.github.hvogel.clientes.test.base.BaseEqualsHashCodeTest;
 import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.*;
 
-class GraficoStatusPacotePercentualTest {
+class GraficoStatusPacotePercentualTest extends BaseEqualsHashCodeTest<GraficoStatusPacotePercentual> {
+
+    @Override
+    protected GraficoStatusPacotePercentual createInstance() {
+        return GraficoStatusPacotePercentual.builder()
+                .withIniciadoPercentual(Collections.singletonList(BigDecimal.ONE))
+                .build();
+    }
+
+    @Override
+    protected GraficoStatusPacotePercentual createEqualInstance() {
+        return GraficoStatusPacotePercentual.builder()
+                .withIniciadoPercentual(Collections.singletonList(BigDecimal.ONE))
+                .build();
+    }
+
+    @Override
+    protected GraficoStatusPacotePercentual createDifferentInstance() {
+        return GraficoStatusPacotePercentual.builder()
+                .withIniciadoPercentual(Collections.singletonList(BigDecimal.TEN))
+                .build();
+    }
 
     @Test
     void testBuilderAndGetters() {
@@ -18,11 +40,11 @@ class GraficoStatusPacotePercentualTest {
                 .build();
 
         assertNotNull(grafico);
-        assertEquals(BigDecimal.ONE, grafico.getIniciadoPercentual().get(0));
-        assertEquals(BigDecimal.TEN, grafico.getAprovadoPercentual().get(0));
-        assertEquals(BigDecimal.ZERO, grafico.getExecutandoPercentual().get(0));
-        assertEquals(BigDecimal.valueOf(5), grafico.getCanceladoPercentual().get(0));
-        assertEquals(BigDecimal.valueOf(100), grafico.getFinalizadoPercentual().get(0));
+        assertEquals(BigDecimal.ONE, grafico.getIniciadoPercentual().getFirst());
+        assertEquals(BigDecimal.TEN, grafico.getAprovadoPercentual().getFirst());
+        assertEquals(BigDecimal.ZERO, grafico.getExecutandoPercentual().getFirst());
+        assertEquals(BigDecimal.valueOf(5), grafico.getCanceladoPercentual().getFirst());
+        assertEquals(BigDecimal.valueOf(100), grafico.getFinalizadoPercentual().getFirst());
     }
 
     @Test
@@ -34,26 +56,10 @@ class GraficoStatusPacotePercentualTest {
         grafico.setCanceladoPercentual(Collections.singletonList(BigDecimal.valueOf(5)));
         grafico.setFinalizadoPercentual(Collections.singletonList(BigDecimal.valueOf(100)));
 
-        assertEquals(BigDecimal.ONE, grafico.getIniciadoPercentual().get(0));
-        assertEquals(BigDecimal.TEN, grafico.getAprovadoPercentual().get(0));
-        assertEquals(BigDecimal.ZERO, grafico.getExecutandoPercentual().get(0));
-        assertEquals(BigDecimal.valueOf(5), grafico.getCanceladoPercentual().get(0));
-        assertEquals(BigDecimal.valueOf(100), grafico.getFinalizadoPercentual().get(0));
-    }
-
-    @Test
-    void testEqualsAndHashCode() {
-        GraficoStatusPacotePercentual g1 = GraficoStatusPacotePercentual.builder()
-                .withIniciadoPercentual(Collections.singletonList(BigDecimal.ONE)).build();
-        GraficoStatusPacotePercentual g2 = GraficoStatusPacotePercentual.builder()
-                .withIniciadoPercentual(Collections.singletonList(BigDecimal.ONE)).build();
-        assertEquals(g1, g2);
-        assertEquals(g1.hashCode(), g2.hashCode());
-    }
-
-    @Test
-    void testToString() {
-        GraficoStatusPacotePercentual g1 = GraficoStatusPacotePercentual.builder().build();
-        assertNotNull(g1.toString());
+        assertEquals(BigDecimal.ONE, grafico.getIniciadoPercentual().getFirst());
+        assertEquals(BigDecimal.TEN, grafico.getAprovadoPercentual().getFirst());
+        assertEquals(BigDecimal.ZERO, grafico.getExecutandoPercentual().getFirst());
+        assertEquals(BigDecimal.valueOf(5), grafico.getCanceladoPercentual().getFirst());
+        assertEquals(BigDecimal.valueOf(100), grafico.getFinalizadoPercentual().getFirst());
     }
 }

@@ -163,4 +163,50 @@ class ClienteServiceImplTest {
         Page<Cliente> result = service.pesquisarPeloNome("Joao", pageable);
         assertEquals(1, result.getTotalElements());
     }
+
+    @Test
+    void testAtualizar_DuplicateCpf() {
+        Cliente cliente = new Cliente();
+        cliente.setId(1);
+        cliente.setNome("Joao Silva");
+        cliente.setCpf("12345678900");
+
+        when(repository.findByCpfAndIdNot(anyString(), anyInt())).thenReturn(Optional.of(new Cliente()));
+
+        assertThrows(ResponseStatusException.class, () -> service.atualizar(cliente));
+    }
+
+    @Test
+    void testAtualizar_CpfTooLong() {
+        Cliente cliente = new Cliente();
+        cliente.setId(1);
+        cliente.setNome("Joao Silva");
+        cliente.setCpf("12345678900123");
+
+        when(repository.findByCpfAndIdNot(anyString(), anyInt())).thenReturn(Optional.empty());
+        when(repository.findByNomeAndIdNot(anyString(), anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(ResponseStatusException.class, () -> service.atualizar(cliente));
+    }
+
+    @Test
+    void testAtualizar_Success_WithCep() {
+        Cliente cliente = new Cliente();
+        cliente.setId(1);
+        cliente.setNome("joao silva");
+        cliente.setCpf("123.456.789-00");
+        cliente.setCaptcha("captcha-token");
+        cliente.setCep("12.345-678");
+
+        when(repository.findByCpfAndIdNot(anyString(), anyInt())).thenReturn(Optional.empty());
+        when(repository.findByNomeAndIdNot(anyString(), anyInt())).thenReturn(Optional.empty());
+        when(repository.save(any(Cliente.class))).thenReturn(cliente);
+        doNothing().when(googleService).validarCaptchaPreenchido(anyString());
+
+        Cliente result = service.atualizar(cliente);
+
+        assertNotNull(result);
+        assertEquals("12345678", cliente.getCep()); // Verify CEP formatting
+        verify(repository).save(cliente);
+    }
 }

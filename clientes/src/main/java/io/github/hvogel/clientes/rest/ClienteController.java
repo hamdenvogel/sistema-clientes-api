@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import io.github.hvogel.clientes.exception.RegraNegocioException;
+import io.github.hvogel.clientes.util.Messages;
 import io.github.hvogel.clientes.model.entity.Cliente;
 import io.github.hvogel.clientes.rest.dto.ClienteDTO;
 import io.github.hvogel.clientes.rest.dto.InfoResponseDTO;
@@ -46,9 +47,6 @@ public class ClienteController {
 	private final TotalClientesService totalClientesService;
 	private final ClienteService clienteService;
 	private final RelatorioService relatorioService;
-
-	private static final String TITULO_INFORMACAO = "Informação";
-	private static final String CLIENTE_NAO_ENCONTRADO = "Cliente não encontrado.";
 
 	public ClienteController(TotalClientesService totalClientesService, ClienteService clienteService,
 			RelatorioService relatorioService) {
@@ -84,7 +82,7 @@ public class ClienteController {
 			Cliente clienteSalvo = clienteService.salvar(cliente);
 			InfoResponseDTO infoResponseDTO = InfoResponseDTO.builder()
 					.withMensagem("Cliente criado com sucesso.")
-					.withTitulo(TITULO_INFORMACAO)
+					.withTitulo(Messages.MSG_INFORMACAO)
 					.build();
 			ClienteDTO clienteDTO = new ClienteDTO();
 			clienteDTO.setCep(clienteSalvo.getCep());
@@ -108,7 +106,7 @@ public class ClienteController {
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public Cliente acharPorId(@PathVariable Integer id) {
 		return clienteService.obterPorId(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, CLIENTE_NAO_ENCONTRADO));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Messages.CLIENTE_NAO_ENCONTRADO));
 
 	}
 
@@ -117,11 +115,11 @@ public class ClienteController {
 	@ResponseStatus(HttpStatus.OK)
 	public InfoResponseDTO deletar(@PathVariable Integer id) {
 		Cliente cliente = clienteService.obterPorId(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, CLIENTE_NAO_ENCONTRADO));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Messages.CLIENTE_NAO_ENCONTRADO));
 		clienteService.deletar(cliente);
 		return InfoResponseDTO.builder()
 				.withMensagem("Cliente deletado com sucesso.")
-				.withTitulo(TITULO_INFORMACAO)
+				.withTitulo(Messages.MSG_INFORMACAO)
 				.build();
 	}
 
@@ -132,7 +130,7 @@ public class ClienteController {
 		String captcha = clienteAtualizado.getCaptcha();
 		try {
 			Cliente cliente = clienteService.obterPorId(id)
-					.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, CLIENTE_NAO_ENCONTRADO));
+					.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, Messages.CLIENTE_NAO_ENCONTRADO));
 			cliente.setNome(clienteAtualizado.getNome());
 			cliente.setCpf(clienteAtualizado.getCpf());
 			cliente.setCep(clienteAtualizado.getCep());
@@ -145,7 +143,7 @@ public class ClienteController {
 			clienteService.atualizar(cliente);
 			return InfoResponseDTO.builder()
 					.withMensagem("Cliente atualizado com sucesso.")
-					.withTitulo(TITULO_INFORMACAO)
+					.withTitulo(Messages.MSG_INFORMACAO)
 					.build();
 		} catch (RegraNegocioException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -217,7 +215,7 @@ public class ClienteController {
 		Date dataFim = DateUtils.fromString(fim, true);
 
 		if (dataInicio == null) {
-			dataInicio = DateUtils.DATA_INICIO_PADRAO;
+			dataInicio = DateUtils.getDataInicioPadrao();
 		}
 
 		if (dataFim == null) {

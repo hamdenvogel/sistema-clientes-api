@@ -13,12 +13,14 @@ import io.github.hvogel.clientes.service.ValidadorService;
 import io.github.hvogel.clientes.util.BigDecimalConverter;
 import io.github.hvogel.clientes.util.ValidDouble;
 
+import io.github.hvogel.clientes.util.Messages;
+
 @Service
 public class ValidadorServiceImpl implements ValidadorService {
 	private final ValidDouble validDouble;
 	private final BigDecimalConverter bigDecimalConverter;
 	protected static final Pattern RESPONSE_PATTERN = Pattern.compile("[A-Za-z0-9_-]+");
-	private static final String VALOR_INVALIDO = "valor inválido.";
+	private static final String VALOR_INVALIDO = Messages.VALOR_INVALIDO;
 
 	public enum tipoServico {
 		U, // Unitário

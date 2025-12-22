@@ -22,7 +22,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,6 +33,9 @@ class ImagemControllerTest {
 
         @Autowired
         private MockMvc mockMvc;
+
+        @Autowired
+        private ImagemController controller;
 
         @MockBean
         private ImagemService imagemService;
@@ -321,6 +324,111 @@ class ImagemControllerTest {
                 mockMvc.perform(get("/api/imagem/show/100/100")
                                 .with(csrf()))
                                 .andExpect(status().isOk());
-                // Same issue with default image static load.
         }
+
+        @Test
+        void testGetScaledImageWithRequestParam_IOException() throws Exception {
+                Imagem imagem = org.mockito.Mockito.mock(Imagem.class);
+                when(imagemService.findByFileName("error.jpg")).thenReturn(imagem);
+                org.mockito.Mockito.doThrow(new java.io.IOException("Scale error")).when(imagem).scale(anyInt(),
+                                anyInt());
+
+                mockMvc.perform(get("/api/imagem/show/100/100")
+                                .param("name", "error.jpg")
+                                .with(csrf()))
+                                .andExpect(status().isInternalServerError());
+        }
+
+        @Test
+        void testGetScaledImageWithRequestParamUuid_IOException() throws Exception {
+                Imagem imagem = org.mockito.Mockito.mock(Imagem.class);
+                when(imagemService.findByUuid("error-uuid")).thenReturn(imagem);
+                org.mockito.Mockito.doThrow(new java.io.IOException("Scale error")).when(imagem).scale(anyInt(),
+                                anyInt());
+
+                mockMvc.perform(get("/api/imagem/show/100/100")
+                                .param("uuid", "error-uuid")
+                                .with(csrf()))
+                                .andExpect(status().isInternalServerError());
+        }
+
+        @Test
+        void testGetScaledImagem_IOException() throws Exception {
+                Imagem imagem = org.mockito.Mockito.mock(Imagem.class);
+                when(imagemService.findByFileName("error.jpg")).thenReturn(imagem);
+                org.mockito.Mockito.doThrow(new java.io.IOException("Scale error")).when(imagem).scale(anyInt(),
+                                anyInt());
+
+                mockMvc.perform(get("/api/imagem/show/100/100/error.jpg")
+                                .with(csrf()))
+                                .andExpect(status().isInternalServerError());
+        }
+
+        @Test
+        void testGetScaledImagem_ServiceReturnsNull() throws Exception {
+                // When service returns null, controller loads default image and scales it.
+                when(imagemService.findByFileName("unknown.jpg")).thenReturn(null);
+
+                // Expect 200 OK assuming default image loads and scales successfully.
+                // If this fails due to environment (headless), we might get 500, but logic path
+                // is covered.
+                mockMvc.perform(get("/api/imagem/show/100/100/unknown.jpg")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
+
+        @Test
+        void testGetScaledImageWithRequestParam_ServiceReturnsNull() throws Exception {
+                // When service returns null, controller loads default image and scales it.
+                when(imagemService.findByFileName("unknown.jpg")).thenReturn(null);
+
+                mockMvc.perform(get("/api/imagem/show/100/100")
+                                .param("name", "unknown.jpg")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
+
+        @Test
+        void testGetScaledImageWithRequestParam_Uuid_ServiceReturnsNull() throws Exception {
+                // When service returns null for UUID, controller loads default image and scales
+                // it.
+                when(imagemService.findByUuid("unknown-uuid")).thenReturn(null);
+
+                mockMvc.perform(get("/api/imagem/show/100/100")
+                                .param("uuid", "unknown-uuid")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
+
+        @Test
+        void testGetImageWithRequestParam_NullName() throws Exception {
+                // name is null, controller loads default image
+                mockMvc.perform(get("/api/imagem/show")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
+
+        @Test
+        void testGetScaledImageWithRequestParam_UuidNullNameNull() throws Exception {
+                // Both null, controller loads default image
+                mockMvc.perform(get("/api/imagem/show/100/100")
+                                .with(csrf()))
+                                .andExpect(status().isOk());
+        }
+
+        @Test
+        void testGetImageWithRequestParam_NotFound() throws Exception {
+                // To hit line 160, getImagemByName must return null.
+                // Since it normally returns a default image, we need to spy the controller.
+                ImagemController spyController = org.mockito.Mockito.spy(controller);
+                org.springframework.test.web.servlet.MockMvc standaloneMvc = org.springframework.test.web.servlet.setup.MockMvcBuilders
+                                .standaloneSetup(spyController).build();
+
+                org.mockito.Mockito.doReturn(null).when(spyController).getImagemByName("missing");
+
+                standaloneMvc.perform(get("/api/imagem/show")
+                                .param("name", "missing"))
+                                .andExpect(status().isNotFound());
+        }
+
 }

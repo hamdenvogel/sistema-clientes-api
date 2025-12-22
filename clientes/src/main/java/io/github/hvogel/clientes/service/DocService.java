@@ -19,11 +19,13 @@ import com.spire.doc.documents.Paragraph;
 import com.spire.doc.fields.TextRange;
 import com.spire.doc.interfaces.IDocument;
 
+import io.github.hvogel.clientes.util.Messages;
+
 @Service
 public class DocService {
 
-    private static final String SIMPLE_BOOKMARK = "SimpleBookmark";
-    private static final String ADD_BOOKMARKS_DOCX = "AddBookmarks.docx";
+    private static final String SIMPLE_BOOKMARK = Messages.SIMPLE_BOOKMARK;
+    private static final String ADD_BOOKMARKS_DOCX = Messages.ADD_BOOKMARKS_FILE;
     private static final String NESTED_LEVEL_1 = "NestedLevel1";
     private static final String NESTED_LEVEL_2 = "NestedLevel2";
     private static final String ROOT = "Root";
@@ -93,7 +95,7 @@ public class DocService {
         // Load the Word document
         Document doc = new Document(ADD_BOOKMARKS_DOCX);
 
-        // locate the bookmark."SimpleBookmark"
+        // locate the bookmark.Messages.SIMPLE_BOOKMARK
         BookmarksNavigator bookmarkNavigator = new BookmarksNavigator(doc);
         bookmarkNavigator.moveToBookmark(SIMPLE_BOOKMARK);
 

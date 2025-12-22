@@ -1,9 +1,11 @@
 package io.github.hvogel.clientes.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Modifier;
 import java.util.Date;
 
 import org.junit.jupiter.api.Test;
@@ -54,6 +56,14 @@ class DateUtilsTest {
 
     @Test
     void testDataInicioPadrao() {
-        assertNotNull(DateUtils.DATA_INICIO_PADRAO);
+        assertNotNull(DateUtils.getDataInicioPadrao());
+    }
+
+    @Test
+    void testPrivateConstructor() throws Exception {
+        java.lang.reflect.Constructor<DateUtils> constructor = DateUtils.class.getDeclaredConstructor();
+        assertTrue(Modifier.isPrivate(constructor.getModifiers()));
+        constructor.setAccessible(true);
+        assertThrows(java.lang.reflect.InvocationTargetException.class, constructor::newInstance);
     }
 }

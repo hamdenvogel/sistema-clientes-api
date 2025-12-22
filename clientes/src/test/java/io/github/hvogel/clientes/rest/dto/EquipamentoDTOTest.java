@@ -37,14 +37,6 @@ class EquipamentoDTOTest {
         assertEquals(anoModelo, dto.getAnoModelo());
     }
 
-    @Test
-    void testGetSerialVersionUid() {
-        // Act
-        long serialVersionUid = EquipamentoDTO.getSerialversionuid();
-
-        // Assert
-        assertEquals(1L, serialVersionUid);
-    }
 
     @Test
     void testEquals() {

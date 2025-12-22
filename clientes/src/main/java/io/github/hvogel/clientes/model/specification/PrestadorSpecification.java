@@ -1,5 +1,6 @@
 package io.github.hvogel.clientes.model.specification;
 
+import java.io.Serial;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +23,7 @@ import io.github.hvogel.clientes.model.entity.Prestador;
 
 public class PrestadorSpecification implements Specification<Prestador> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(PrestadorSpecification.class);
     private static final String DATA_CADASTRO = "dataCadastro";
@@ -55,6 +57,12 @@ public class PrestadorSpecification implements Specification<Prestador> {
                 javaType = LocalDate.class;
             }
 
+            if (val == null) {
+                // Invalid value for type, return always false
+                predicates.add(builder.disjunction());
+                continue;
+            }
+
             Predicate predicate = buildPredicate(root, builder, criteria, val, javaType);
             if (predicate != null) {
                 predicates.add(predicate);
@@ -70,18 +78,16 @@ public class PrestadorSpecification implements Specification<Prestador> {
     private Object convertValue(SearchCriteria criteria, Class<?> originalJavaType) {
         Object val = criteria.getValue();
         if (val instanceof String sVal) {
-            if (isNotDateRangeOperation(criteria)) {
-                if (originalJavaType.equals(LocalDate.class) || criteria.getKey().equals(DATA_CADASTRO)) {
-                    return parseDate(sVal);
-                } else if (originalJavaType.equals(LocalDateTime.class)) {
-                    // Try formatting if needed, though typically tests pass specific formats.
-                    return val;
-                }
-            } else if (originalJavaType.equals(Integer.class)) {
+            if (originalJavaType.equals(LocalDate.class) || criteria.getKey().equals(DATA_CADASTRO)) {
+                return isNotDateRangeOperation(criteria) ? parseDate(sVal) : sVal;
+            } else if (originalJavaType.equals(LocalDateTime.class)) {
+                return val;
+            }
+            if (originalJavaType.equals(Integer.class)) {
                 try {
                     return Integer.valueOf(sVal);
                 } catch (NumberFormatException e) {
-                    return val;
+                    return null;
                 }
             }
         }
@@ -130,9 +136,9 @@ public class PrestadorSpecification implements Specification<Prestador> {
                 }
                 return builder.lessThanOrEqualTo(root.get(criteria.getKey()).as((Class) javaType), (Comparable) val);
             case NOT_EQUAL:
-                return builder.notEqual(root.get(criteria.getKey()), criteria.getValue());
+                return builder.notEqual(root.get(criteria.getKey()), val);
             case EQUAL:
-                return builder.equal(root.get(criteria.getKey()), criteria.getValue());
+                return builder.equal(root.get(criteria.getKey()), val);
             case LIKE:
                 return builder.like(builder.lower(root.get(criteria.getKey()).as(String.class)),
                         "%" + criteria.getValue().toString().toLowerCase() + "%");

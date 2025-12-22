@@ -45,7 +45,7 @@ public class ChamadoController extends AbstractController<Chamado, ChamadoDTO, C
 	public ChamadoDTO salvar(@RequestBody @Valid ChamadoDTO chamadoDTO) {
 
 		try {
-			if (!clienteService.obterPorId(chamadoDTO.getClienteId()).isPresent()) {
+			if (clienteService.obterPorId(chamadoDTO.getClienteId()).isEmpty()) {
 				throw new ResponseStatusException(HttpStatus.NOT_FOUND, CLIENTE_INEXISTENTE);
 			}
 
@@ -60,11 +60,11 @@ public class ChamadoController extends AbstractController<Chamado, ChamadoDTO, C
 	@PutMapping("alterar/{id}")
 	public ChamadoDTO atualizar(@PathVariable Long id, @RequestBody @Valid ChamadoDTO chamadoDTO) {
 		try {
-			if (!clienteService.obterPorId(chamadoDTO.getClienteId()).isPresent()) {
+			if (clienteService.obterPorId(chamadoDTO.getClienteId()).isEmpty()) {
 				throw new ResponseStatusException(HttpStatus.NOT_FOUND, CLIENTE_INEXISTENTE);
 			}
 
-			if (!chamadoService.findOneById(id).isPresent()) {
+			if (chamadoService.findOneById(id).isEmpty()) {
 				throw new ResponseStatusException(HttpStatus.NOT_FOUND, CHAMADO_INEXISTENTE);
 			}
 
@@ -81,7 +81,7 @@ public class ChamadoController extends AbstractController<Chamado, ChamadoDTO, C
 	public void deletar(@PathVariable Long id) {
 
 		try {
-			if (!chamadoService.findOneById(id).isPresent()) {
+			if (chamadoService.findOneById(id).isEmpty()) {
 				throw new ResponseStatusException(HttpStatus.NOT_FOUND, CHAMADO_INEXISTENTE);
 			}
 			chamadoService.deleteById(id);

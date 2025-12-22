@@ -6,6 +6,9 @@ import jakarta.annotation.Generated;
 public class TotalUsuariosDTO {
 	private long totalUsuarios;
 
+	public TotalUsuariosDTO() {
+	}
+
 	@Generated("SparkTools")
 	private TotalUsuariosDTO(Builder builder) {
 		this.totalUsuarios = builder.totalUsuarios;
@@ -61,6 +64,6 @@ public class TotalUsuariosDTO {
 		public TotalUsuariosDTO build() {
 			return new TotalUsuariosDTO(this);
 		}
-	}	
-		
+	}
+
 }

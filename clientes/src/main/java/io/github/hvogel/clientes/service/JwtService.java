@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -12,7 +13,7 @@ import io.github.hvogel.clientes.model.entity.Usuario;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwtService {
@@ -25,6 +26,10 @@ public class JwtService {
     @Value("${security.jwt.chave-assinatura}")
     private String chaveAssinatura;
 
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(chaveAssinatura.getBytes());
+    }
+
     public String gerarToken(Usuario usuario) {
         long expString = Long.parseLong(expiracao);
         LocalDateTime dataHoraExpiracao = LocalDateTime.now().plusMinutes(expString);
@@ -32,18 +37,19 @@ public class JwtService {
 
         return Jwts
                 .builder()
-                .setSubject(usuario.getUsername())
-                .setExpiration(Date.from(instant))
-                .signWith(SignatureAlgorithm.HS512, chaveAssinatura)
+                .subject(usuario.getUsername())
+                .expiration(Date.from(instant))
+                .signWith(getSigningKey())
                 .compact();
     }
 
     private Claims obterClaims(String token) throws ExpiredJwtException {
         return Jwts
                 .parser()
-                .setSigningKey(chaveAssinatura)
-                .parseClaimsJws(token)
-                .getBody();
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     public boolean tokenValido(String token) {
@@ -53,7 +59,7 @@ public class JwtService {
             LocalDateTime data = dataExpiracao.toInstant()
                     .atZone(ZoneId.systemDefault()).toLocalDateTime();
             return !LocalDateTime.now().isAfter(data);
-        } catch (ExpiredJwtException | io.jsonwebtoken.MalformedJwtException | io.jsonwebtoken.SignatureException
+        } catch (ExpiredJwtException | io.jsonwebtoken.MalformedJwtException | io.jsonwebtoken.security.SignatureException
                 | IllegalArgumentException e) {
             logger.debug("Invalid or expired token: {}", e.getMessage());
             return false;
@@ -66,7 +72,7 @@ public class JwtService {
             Date dataExpiracao = claims.getExpiration();
             return dataExpiracao.toInstant()
                     .atZone(ZoneId.systemDefault()).toLocalDateTime();
-        } catch (ExpiredJwtException | io.jsonwebtoken.MalformedJwtException | io.jsonwebtoken.SignatureException
+        } catch (ExpiredJwtException | io.jsonwebtoken.MalformedJwtException | io.jsonwebtoken.security.SignatureException
                 | IllegalArgumentException e) {
             logger.debug("Cannot get expiration time from invalid token: {}", e.getMessage());
             return null;

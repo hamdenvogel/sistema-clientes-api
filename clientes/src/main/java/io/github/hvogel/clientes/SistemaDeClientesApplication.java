@@ -25,7 +25,7 @@ public class SistemaDeClientesApplication {
 		}
 
 		String appName = env.getProperty("application.env");
-		return String.format("Ambiente: %s | versao: %s", ambienteAtual, appName);
+		return "Ambiente: %s | versao: %s".formatted(ambienteAtual, appName);
 	}
 
 	public static void main(String[] args) {

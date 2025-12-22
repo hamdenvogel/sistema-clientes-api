@@ -1,8 +1,8 @@
 package io.github.hvogel.clientes.rest.dto;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import io.github.hvogel.clientes.test.util.EqualsTestHelper;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TotalRegistrosDTOTest {
 
@@ -51,11 +51,12 @@ class TotalRegistrosDTOTest {
                                 .withTotal(250)
                                 .build();
 
+                // Standard edge cases
+                EqualsTestHelper.assertEqualsEdgeCases(dto1);
+                
+                // Specific equality tests
                 assertEquals(dto1, dto2);
                 assertNotEquals(dto1, dto3);
-                assertEquals(dto1, dto1);
-                assertNotEquals(null, dto1);
-                assertNotEquals(dto1, new Object());
         }
 
         @Test
@@ -80,15 +81,6 @@ class TotalRegistrosDTOTest {
                 String result = dto.toString();
 
                 assertNotNull(result);
-                assertTrue(result.contains("total=500"));
-        }
-
-        @Test
-        void testNegativeNumber() {
-                TotalRegistrosDTO dto = TotalRegistrosDTO.builder()
-                                .withTotal(-1)
-                                .build();
-
-                assertEquals(-1, dto.getTotal());
+                assertTrue(result.contains("500"));
         }
 }

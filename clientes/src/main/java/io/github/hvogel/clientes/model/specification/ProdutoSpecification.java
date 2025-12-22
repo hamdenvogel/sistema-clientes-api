@@ -1,5 +1,6 @@
 package io.github.hvogel.clientes.model.specification;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -18,6 +19,7 @@ import io.github.hvogel.clientes.model.entity.Produto;
 
 public class ProdutoSpecification implements Specification<Produto> {
 
+    @Serial
     private static final long serialVersionUID = 1L;
     private static final String DATE_PATTERN_SLASH = "dd/MM/yyyy";
     private static final String DATE_PATTERN_DASH = "dd-MM-yyyy";
@@ -39,6 +41,11 @@ public class ProdutoSpecification implements Specification<Produto> {
             Class<?> javaType = resolveJavaType(root, criteria);
             Object val = convertValue(criteria, javaType);
 
+            if (val == null) {
+                predicates.add(builder.disjunction());
+                continue;
+            }
+
             Predicate predicate = buildPredicate(root, builder, criteria, val, javaType);
             if (predicate != null) {
                 predicates.add(predicate);
@@ -54,17 +61,31 @@ public class ProdutoSpecification implements Specification<Produto> {
     private Object convertValue(SearchCriteria criteria, Class<?> originalJavaType) {
         Object val = criteria.getValue();
         if (val instanceof String sVal) {
-            if (originalJavaType.equals(LocalDate.class)) {
-                return parseDate(sVal);
-            } else if (originalJavaType.equals(BigDecimal.class)) {
-                return new BigDecimal(sVal);
-            } else if (originalJavaType.equals(Integer.class)) {
-                return Integer.valueOf(sVal);
-            } else if (originalJavaType.equals(Double.class)) {
-                return Double.valueOf(sVal);
-            }
+            return convertStringValue(sVal, originalJavaType, criteria);
         }
         return val;
+    }
+
+    private Object convertStringValue(String sVal, Class<?> originalJavaType, SearchCriteria criteria) {
+        if (originalJavaType.equals(LocalDate.class)) {
+            return isNotDateRangeOperation(criteria) ? parseDate(sVal) : sVal; // Warning: criteria access needs field
+                                                                               // or param
+        } else if (originalJavaType.equals(BigDecimal.class)) {
+            return new BigDecimal(sVal);
+        } else if (originalJavaType.equals(Integer.class)) {
+            try {
+                return Integer.valueOf(sVal);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        } else if (originalJavaType.equals(Double.class)) {
+            try {
+                return Double.valueOf(sVal);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return sVal; // Fallback
     }
 
     private LocalDate parseDate(String sVal) {
@@ -77,6 +98,11 @@ public class ProdutoSpecification implements Specification<Produto> {
                 return null;
             }
         }
+    }
+
+    private boolean isNotDateRangeOperation(SearchCriteria criteria) {
+        return !criteria.getOperation().equals(io.github.hvogel.clientes.enums.SearchOperation.BETWEEN_DATE)
+                && !criteria.getOperation().equals(io.github.hvogel.clientes.enums.SearchOperation.BETWEEN_DATETIME);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -92,9 +118,9 @@ public class ProdutoSpecification implements Specification<Produto> {
             case LESS_THAN_EQUAL:
                 return builder.lessThanOrEqualTo(root.get(criteria.getKey()).as((Class) javaType), (Comparable) val);
             case NOT_EQUAL:
-                return builder.notEqual(root.get(criteria.getKey()), criteria.getValue());
+                return builder.notEqual(root.get(criteria.getKey()), val);
             case EQUAL:
-                return builder.equal(root.get(criteria.getKey()), criteria.getValue());
+                return builder.equal(root.get(criteria.getKey()), val);
             case LIKE:
                 return builder.like(builder.lower(root.get(criteria.getKey()).as(String.class)),
                         "%" + criteria.getValue().toString().toLowerCase() + "%");

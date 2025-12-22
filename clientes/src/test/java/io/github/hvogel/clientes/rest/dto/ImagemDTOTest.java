@@ -52,24 +52,40 @@ class ImagemDTOTest {
     @Test
     void testEquals() {
         Imagem imagem = mock(Imagem.class);
+        when(imagem.getUuid()).thenReturn("uuid-img");
+        when(imagem.getFileName()).thenReturn("test.jpg");
+        when(imagem.getFileType()).thenReturn("image/jpeg");
+        when(imagem.getSize()).thenReturn(1024L);
+        
         ImagemDTO dto1 = new ImagemDTO(imagem);
         dto1.setUuid("uuid-123");
         
         ImagemDTO dto2 = new ImagemDTO(imagem);
         dto2.setUuid("uuid-123");
         
+        // Com @Data, todos os campos devem ser iguais
         assertEquals(dto1, dto2);
+        
+        // Teste com uuid diferente
+        dto2.setUuid("uuid-456");
+        assertNotEquals(dto1, dto2);
     }
     
     @Test
     void testHashCode() {
         Imagem imagem = mock(Imagem.class);
+        when(imagem.getUuid()).thenReturn("uuid-img");
+        when(imagem.getFileName()).thenReturn("test.jpg");
+        when(imagem.getFileType()).thenReturn("image/jpeg");
+        when(imagem.getSize()).thenReturn(1024L);
+        
         ImagemDTO dto1 = new ImagemDTO(imagem);
         dto1.setUuid("uuid-123");
         
         ImagemDTO dto2 = new ImagemDTO(imagem);
         dto2.setUuid("uuid-123");
         
+        // Com @Data, hashCode deve ser igual quando todos os campos são iguais
         assertEquals(dto1.hashCode(), dto2.hashCode());
     }
     

@@ -40,23 +40,23 @@ class ValidadorControllerTest {
     private io.github.hvogel.clientes.security.jwt.AuthEntryPointJwt unauthorizedHandler;
 
     @Test
-    void testValidarInteger_Success() throws Exception {
+    void testValidarInteger_Success() {
         doNothing().when(validadorService).validarValorInteger(anyString());
 
-        mockMvc.perform(get("/api/validador/123"))
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> mockMvc.perform(get("/api/validador/123"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensagem").value("Valor Integer validado com sucesso."))
-                .andExpect(jsonPath("$.titulo").value("Informação"));
+                .andExpect(jsonPath("$.titulo").value("Informação")));
     }
 
     @Test
-    void testValidarInteger_Error() throws Exception {
+    void testValidarInteger_Error() {
         doThrow(new RegraNegocioException("Valor inválido"))
                 .when(validadorService).validarValorInteger(anyString());
 
-        mockMvc.perform(get("/api/validador/abc"))
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> mockMvc.perform(get("/api/validador/abc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensagem").value("Erro"))
-                .andExpect(jsonPath("$.titulo").value("Informação"));
+                .andExpect(jsonPath("$.titulo").value("Informação")));
     }
 }

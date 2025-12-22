@@ -35,7 +35,7 @@ class ApplicationControllerAdviceTest {
 
         assertNotNull(errors);
         assertEquals(1, errors.getErrors().size());
-        assertEquals("default message", errors.getErrors().get(0));
+        assertEquals("default message", errors.getErrors().getFirst());
     }
 
     @Test
@@ -47,6 +47,6 @@ class ApplicationControllerAdviceTest {
         assertNotNull(response);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Not found reason", response.getBody().getErrors().get(0));
+        assertEquals("Not found reason", response.getBody().getErrors().getFirst());
     }
 }

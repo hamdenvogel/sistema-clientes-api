@@ -7,34 +7,46 @@ public class InfoDTO {
 	private String nameApp;
 	private String versionApp;
 	private String authorApp;
+
+	public InfoDTO() {
+	}
+
 	@Generated("SparkTools")
 	private InfoDTO(Builder builder) {
 		this.nameApp = builder.nameApp;
 		this.versionApp = builder.versionApp;
 		this.authorApp = builder.authorApp;
 	}
+
 	public String getNameApp() {
 		return nameApp;
 	}
+
 	public void setNameApp(String nameApp) {
 		this.nameApp = nameApp;
 	}
+
 	public String getVersionApp() {
 		return versionApp;
 	}
+
 	public void setVersionApp(String versionApp) {
 		this.versionApp = versionApp;
 	}
+
 	public String getAuthorApp() {
 		return authorApp;
 	}
+
 	public void setAuthorApp(String authorApp) {
 		this.authorApp = authorApp;
 	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(authorApp, nameApp, versionApp);
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -47,16 +59,17 @@ public class InfoDTO {
 		return Objects.equals(authorApp, other.authorApp) && Objects.equals(nameApp, other.nameApp)
 				&& Objects.equals(versionApp, other.versionApp);
 	}
+
 	@Override
 	public String toString() {
 		return "InfoDTO [nameApp=" + nameApp + ", versionApp=" + versionApp + ", authorApp=" + authorApp + "]";
 	}
-	
+
 	@Generated("SparkTools")
 	public static Builder builder() {
 		return new Builder();
 	}
-	
+
 	@Generated("SparkTools")
 	public static final class Builder {
 		private String nameApp;
@@ -84,8 +97,6 @@ public class InfoDTO {
 		public InfoDTO build() {
 			return new InfoDTO(this);
 		}
-	}	
-	
-	
-		
+	}
+
 }

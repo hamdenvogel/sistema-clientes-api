@@ -1,10 +1,32 @@
 package io.github.hvogel.clientes.model.grafico;
 
+import io.github.hvogel.clientes.test.base.BaseEqualsHashCodeTest;
 import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.*;
 
-class GraficoAtendimentoTortaTest {
+class GraficoAtendimentoTortaTest extends BaseEqualsHashCodeTest<GraficoAtendimentoTorta> {
+
+    @Override
+    protected GraficoAtendimentoTorta createInstance() {
+        return GraficoAtendimentoTorta.builder()
+                .withStatusAtendimento(Collections.singletonList("A"))
+                .build();
+    }
+
+    @Override
+    protected GraficoAtendimentoTorta createEqualInstance() {
+        return GraficoAtendimentoTorta.builder()
+                .withStatusAtendimento(Collections.singletonList("A"))
+                .build();
+    }
+
+    @Override
+    protected GraficoAtendimentoTorta createDifferentInstance() {
+        return GraficoAtendimentoTorta.builder()
+                .withStatusAtendimento(Collections.singletonList("B"))
+                .build();
+    }
 
     @Test
     void testBuilderAndGetters() {
@@ -14,8 +36,8 @@ class GraficoAtendimentoTortaTest {
                 .build();
 
         assertNotNull(grafico);
-        assertEquals("Label", grafico.getStatusAtendimento().get(0));
-        assertEquals(10, grafico.getQuantidade().get(0));
+        assertEquals("Label", grafico.getStatusAtendimento().getFirst());
+        assertEquals(10, grafico.getQuantidade().getFirst());
     }
 
     @Test
@@ -24,24 +46,7 @@ class GraficoAtendimentoTortaTest {
         grafico.setStatusAtendimento(Collections.singletonList("New Label"));
         grafico.setQuantidade(Collections.singletonList(20));
 
-        assertEquals("New Label", grafico.getStatusAtendimento().get(0));
-        assertEquals(20, grafico.getQuantidade().get(0));
-    }
-
-    @Test
-    void testEqualsAndHashCode() {
-        GraficoAtendimentoTorta g1 = GraficoAtendimentoTorta.builder()
-                .withStatusAtendimento(Collections.singletonList("A")).build();
-        GraficoAtendimentoTorta g2 = GraficoAtendimentoTorta.builder()
-                .withStatusAtendimento(Collections.singletonList("A")).build();
-        assertEquals(g1, g2);
-        assertEquals(g1.hashCode(), g2.hashCode());
-    }
-
-    @Test
-    void testToString() {
-        GraficoAtendimentoTorta g1 = GraficoAtendimentoTorta.builder()
-                .withStatusAtendimento(Collections.singletonList("A")).build();
-        assertNotNull(g1.toString());
+        assertEquals("New Label", grafico.getStatusAtendimento().getFirst());
+        assertEquals(20, grafico.getQuantidade().getFirst());
     }
 }

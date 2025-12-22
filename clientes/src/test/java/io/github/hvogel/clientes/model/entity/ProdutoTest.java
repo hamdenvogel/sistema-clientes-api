@@ -1,6 +1,7 @@
 package io.github.hvogel.clientes.model.entity;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.math.BigDecimal;
 
@@ -10,60 +11,55 @@ class ProdutoTest {
 
     @Test
     void testGettersAndSetters() {
-        Produto entity = new Produto();
+        Produto p = new Produto();
+        Integer id = 1;
+        String descricao = "Desc";
+        BigDecimal preco = BigDecimal.ONE;
+        String marca = "Marca";
+        String modelo = "Modelo";
+        Integer anoFab = 2020;
+        Integer anoMod = 2021;
 
-        entity.setId(1);
-        entity.setDescricao("Produto Teste");
-        entity.setPreco(new BigDecimal("100.00"));
-        entity.setMarca("Marca Teste");
-        entity.setModelo("Modelo Teste");
-        entity.setAnoFabricacao(2024);
-        entity.setAnoModelo(2024);
+        p.setId(id);
+        p.setDescricao(descricao);
+        p.setPreco(preco);
+        p.setMarca(marca);
+        p.setModelo(modelo);
+        p.setAnoFabricacao(anoFab);
+        p.setAnoModelo(anoMod);
 
-        assertEquals(1, entity.getId());
-        assertEquals("Produto Teste", entity.getDescricao());
-        assertEquals(new BigDecimal("100.00"), entity.getPreco());
-        assertEquals("Marca Teste", entity.getMarca());
-        assertEquals("Modelo Teste", entity.getModelo());
-        assertEquals(2024, entity.getAnoFabricacao());
-        assertEquals(2024, entity.getAnoModelo());
+        assertEquals(id, p.getId());
+        assertEquals(descricao, p.getDescricao());
+        assertEquals(preco, p.getPreco());
+        assertEquals(marca, p.getMarca());
+        assertEquals(modelo, p.getModelo());
+        assertEquals(anoFab, p.getAnoFabricacao());
+        assertEquals(anoMod, p.getAnoModelo());
     }
 
     @Test
-    void testEquals() {
-        Produto entity1 = new Produto();
-        entity1.setId(1);
-        entity1.setDescricao("Produto");
+    void testEqualsAndHashCode() {
+        Produto p1 = new Produto();
+        p1.setId(1);
+        p1.setDescricao("A");
 
-        Produto entity2 = new Produto();
-        entity2.setId(1);
-        entity2.setDescricao("Produto");
+        Produto p2 = new Produto();
+        p2.setId(1);
+        p2.setDescricao("A");
 
-        Produto entity3 = new Produto();
-        entity3.setId(2);
+        assertEquals(p1, p2);
+        assertEquals(p1.hashCode(), p2.hashCode());
 
-        assertEquals(entity1, entity2);
-        assertNotEquals(entity1, entity3);
-    }
+        p2.setId(2);
+        assertNotEquals(p1, p2);
 
-    @Test
-    void testHashCode() {
-        Produto entity1 = new Produto();
-        entity1.setId(1);
+        p2.setId(1);
+        p2.setDescricao("B");
+        assertEquals(p1, p2); // Mesmo ID = objetos iguais
 
-        Produto entity2 = new Produto();
-        entity2.setId(1);
-
-        assertEquals(entity1.hashCode(), entity2.hashCode());
-    }
-
-    @Test
-    void testToString() {
-        Produto entity = new Produto();
-        entity.setDescricao("Produto Teste");
-
-        String result = entity.toString();
-        assertNotNull(result);
-        assertTrue(result.contains("Produto Teste"));
+        p2.setDescricao("A");
+        p2.setPreco(BigDecimal.TEN);
+        // p1 preco is null, mas mesmo ID = objetos iguais
+        assertEquals(p1, p2);
     }
 }

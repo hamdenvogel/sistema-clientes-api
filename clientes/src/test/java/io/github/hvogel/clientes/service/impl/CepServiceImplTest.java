@@ -84,4 +84,14 @@ class CepServiceImplTest {
         assertEquals("", result.getCep());
         assertEquals("", result.getBairro());
     }
+
+    @Test
+    void testPesquisarCep_NotFound() {
+        ReflectionTestUtils.setField(service, "viaCepFormat", "https://viacep.com.br/ws/{cep}/json/");
+
+        doNothing().when(validadorService).validarCep(anyString());
+        when(restTemplate.getForObject(anyString(), eq(Endereco.class), anyMap())).thenReturn(null);
+
+        assertThrows(ResponseStatusException.class, () -> service.pesquisarCep("12345678"));
+    }
 }

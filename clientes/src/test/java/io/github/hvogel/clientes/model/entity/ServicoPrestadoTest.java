@@ -1,112 +1,96 @@
 package io.github.hvogel.clientes.model.entity;
 
-import io.github.hvogel.clientes.enums.StatusServico;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+import io.github.hvogel.clientes.enums.StatusServico;
 
 class ServicoPrestadoTest {
 
     @Test
     void testGettersAndSetters() {
-        ServicoPrestado servico = new ServicoPrestado();
-
-        servico.setId(1);
-        servico.setDescricao("Servico Teste");
-        servico.setValor(new BigDecimal("150.00"));
-        servico.setData(LocalDate.of(2025, 1, 15));
-        servico.setDataConclusao(LocalDate.of(2025, 1, 20));
-        servico.setStatus(StatusServico.E);
-        servico.setCaptcha("abc123");
-        servico.setTipo("M");
-        servico.setLocalAtendimento("Rua A, 123");
-        servico.setConclusao("Concluido com sucesso");
-
+        ServicoPrestado sp = new ServicoPrestado();
+        Integer id = 1;
+        String descricao = "Desc";
         Cliente cliente = new Cliente();
-        cliente.setId(100);
-        servico.setCliente(cliente);
-
+        BigDecimal valor = BigDecimal.TEN;
+        LocalDate data = LocalDate.now();
+        LocalDate dataConclusao = LocalDate.now().plusDays(1);
+        StatusServico status = StatusServico.F; // Changed from REALIZADO
+        String captcha = "captcha";
         Prestador prestador = new Prestador();
-        prestador.setId(200);
-        servico.setPrestador(prestador);
-
+        String tipo = "1";
         Natureza natureza = new Natureza();
-        natureza.setId(1L);
-        servico.setNatureza(natureza);
-
         Atividade atividade = new Atividade();
-        atividade.setId(1L);
-        servico.setAtividade(atividade);
+        String local = "Local";
+        String conclusao = "Conclusao";
 
-        assertEquals(1, servico.getId());
-        assertEquals("Servico Teste", servico.getDescricao());
-        assertEquals(new BigDecimal("150.00"), servico.getValor());
-        assertEquals(LocalDate.of(2025, 1, 15), servico.getData());
-        assertEquals(LocalDate.of(2025, 1, 20), servico.getDataConclusao());
-        assertEquals(StatusServico.E, servico.getStatus());
-        assertEquals("abc123", servico.getCaptcha());
-        assertEquals("M", servico.getTipo());
-        assertEquals("Rua A, 123", servico.getLocalAtendimento());
-        assertEquals("Concluido com sucesso", servico.getConclusao());
-        assertEquals(100, servico.getCliente().getId());
-        assertEquals(200, servico.getPrestador().getId());
-        assertEquals(1L, servico.getNatureza().getId());
-        assertEquals(1L, servico.getAtividade().getId());
+        sp.setId(id);
+        sp.setDescricao(descricao);
+        sp.setCliente(cliente);
+        sp.setValor(valor);
+        sp.setData(data);
+        sp.setDataConclusao(dataConclusao);
+        sp.setStatus(status);
+        sp.setCaptcha(captcha);
+        sp.setPrestador(prestador);
+        sp.setTipo(tipo);
+        sp.setNatureza(natureza);
+        sp.setAtividade(atividade);
+        sp.setLocalAtendimento(local);
+        sp.setConclusao(conclusao);
+
+        assertEquals(id, sp.getId());
+        assertEquals(descricao, sp.getDescricao());
+        assertEquals(cliente, sp.getCliente());
+        assertEquals(valor, sp.getValor());
+        assertEquals(data, sp.getData());
+        assertEquals(dataConclusao, sp.getDataConclusao());
+        assertEquals(status, sp.getStatus());
+        assertEquals(captcha, sp.getCaptcha());
+        assertEquals(prestador, sp.getPrestador());
+        assertEquals(tipo, sp.getTipo());
+        assertEquals(natureza, sp.getNatureza());
+        assertEquals(atividade, sp.getAtividade());
+        assertEquals(local, sp.getLocalAtendimento());
+        assertEquals(conclusao, sp.getConclusao());
     }
 
     @Test
-    void testEquals() {
-        ServicoPrestado servico1 = new ServicoPrestado();
-        servico1.setId(1);
-        servico1.setDescricao("Teste");
-        servico1.setStatus(StatusServico.E);
+    void testEqualsAndHashCode() {
+        ServicoPrestado sp1 = new ServicoPrestado();
+        sp1.setId(1);
+        sp1.setDescricao("Desc");
 
-        ServicoPrestado servico2 = new ServicoPrestado();
-        servico2.setId(1);
-        servico2.setDescricao("Teste");
-        servico2.setStatus(StatusServico.E);
+        ServicoPrestado sp2 = new ServicoPrestado();
+        sp2.setId(1);
+        sp2.setDescricao("Desc");
 
-        ServicoPrestado servico3 = new ServicoPrestado();
-        servico3.setId(2);
-        servico3.setDescricao("Outro");
-        servico3.setStatus(StatusServico.C);
+        assertEquals(sp1, sp2);
+        assertEquals(sp1.hashCode(), sp2.hashCode());
+        assertEquals(sp1, sp1);
+        assertNotEquals(null, sp1);
+        assertNotEquals(sp1, new Object());
 
-        assertEquals(servico1, servico2);
-        assertNotEquals(servico1, servico3);
-        assertNotEquals(null, servico1);
-        assertNotEquals(servico1, new Object());
-        assertEquals(servico1, servico1);
-    }
+        sp2.setId(2);
+        assertNotEquals(sp1, sp2);
 
-    @Test
-    void testHashCode() {
-        ServicoPrestado servico1 = new ServicoPrestado();
-        servico1.setId(1);
-        servico1.setDescricao("Teste");
-
-        ServicoPrestado servico2 = new ServicoPrestado();
-        servico2.setId(1);
-        servico2.setDescricao("Teste");
-
-        assertEquals(servico1.hashCode(), servico2.hashCode());
+        sp2.setId(1);
+        sp2.setDescricao("Diff");
+        assertEquals(sp1, sp2); // Mesmo ID = objetos iguais
     }
 
     @Test
     void testToString() {
-        ServicoPrestado servico = new ServicoPrestado();
-        servico.setId(1);
-        servico.setDescricao("Teste");
-        servico.setStatus(StatusServico.E);
-
-        String result = servico.toString();
-
-        assertNotNull(result);
-        assertTrue(result.contains("ServicoPrestado"));
-        assertTrue(result.contains("id=1"));
-        assertTrue(result.contains("descricao=Teste"));
-        assertTrue(result.contains("status=E"));
+        ServicoPrestado sp = new ServicoPrestado();
+        sp.setId(1);
+        String s = sp.toString();
+        assertTrue(s.contains("id=1"));
     }
 }

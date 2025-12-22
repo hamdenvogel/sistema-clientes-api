@@ -41,14 +41,15 @@ public class GoogleRecaptchaDTO {
 			return false;
 		}
 		for (ErrorCode error : errors) {
-			if (error == ErrorCode.INVALID_RESPONSE || error == ErrorCode.MISSING_RESPONSE || error == ErrorCode.TIMEOUT_OR_DUPLICATE) {
+			if (error == ErrorCode.INVALID_RESPONSE || error == ErrorCode.MISSING_RESPONSE
+					|| error == ErrorCode.TIMEOUT_OR_DUPLICATE) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	enum ErrorCode {
+	public enum ErrorCode {
 		MISSING_SECRET,
 		INVALID_SECRET,
 		MISSING_RESPONSE,

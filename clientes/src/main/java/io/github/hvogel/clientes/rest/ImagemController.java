@@ -25,11 +25,13 @@ import io.github.hvogel.clientes.rest.dto.InfoResponseDTO;
 import io.github.hvogel.clientes.service.DocumentoService;
 import io.github.hvogel.clientes.service.ImagemService;
 
+import io.github.hvogel.clientes.util.Messages;
+
 @RestController
 @RequestMapping("/api/imagem")
 public class ImagemController {
 
-	private static final String IMAGEM_NAO_ENCONTRADA = "Imagem não encontrada.";
+	private static final String IMAGEM_NAO_ENCONTRADA = Messages.IMAGEM_NAO_ENCONTRADA;
 	private static final String ERRO_IMAGEM_PADRAO = "Erro ao carregar imagem padrão";
 	private static final String TITULO_INFORMACAO = "Informação";
 
@@ -109,11 +111,6 @@ public class ImagemController {
 				.obterPorId(idDocumento)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
 						"Código do Documento inexistente."));
-
-		if (idChave == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"Chave Id inexistente.");
-		}
 
 		Imagem imagem = Imagem.buildImagem(file, fileHelper);
 		imagem.setDocumento(documento);

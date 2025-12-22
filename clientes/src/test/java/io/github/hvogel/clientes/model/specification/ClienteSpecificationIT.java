@@ -56,7 +56,7 @@ class ClienteSpecificationIT {
         List<Cliente> results = repository.findAll(spec);
 
         assertEquals(1, results.size());
-        assertEquals("Cliente A", results.get(0).getNome());
+        assertEquals("Cliente A", results.getFirst().getNome());
     }
 
     @Test
@@ -77,7 +77,7 @@ class ClienteSpecificationIT {
         List<Cliente> results = repository.findAll(spec);
 
         assertEquals(1, results.size());
-        assertEquals("Cliente B", results.get(0).getNome());
+        assertEquals("Cliente B", results.getFirst().getNome());
     }
 
     @Test
@@ -98,7 +98,7 @@ class ClienteSpecificationIT {
         List<Cliente> results = repository.findAll(spec);
 
         assertEquals(1, results.size());
-        assertEquals("Cliente A", results.get(0).getNome());
+        assertEquals("Cliente A", results.getFirst().getNome());
     }
 
     @Test
@@ -111,7 +111,7 @@ class ClienteSpecificationIT {
         List<Cliente> results = repository.findAll(spec);
 
         assertEquals(1, results.size());
-        assertEquals("Cliente B", results.get(0).getNome());
+        assertEquals("Cliente B", results.getFirst().getNome());
     }
 
     @Test
@@ -123,7 +123,7 @@ class ClienteSpecificationIT {
         List<Cliente> results = repository.findAll(spec);
 
         assertEquals(1, results.size());
-        assertEquals("Cliente A", results.get(0).getNome());
+        assertEquals("Cliente A", results.getFirst().getNome());
     }
 
     @Test
@@ -155,7 +155,7 @@ class ClienteSpecificationIT {
         List<Cliente> results = repository.findAll(spec);
 
         assertEquals(1, results.size());
-        assertEquals("Cliente B", results.get(0).getNome());
+        assertEquals("Cliente B", results.getFirst().getNome());
     }
 
 }

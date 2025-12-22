@@ -19,10 +19,12 @@ import io.github.hvogel.clientes.model.specification.PrestadorSpecification;
 import io.github.hvogel.clientes.service.GoogleService;
 import io.github.hvogel.clientes.service.PrestadorService;
 
+import io.github.hvogel.clientes.util.Messages;
+
 @Service
 public class PrestadorServiceImpl implements PrestadorService {
 
-	private static final String CAMPO_AVALIACAO_OBRIGATORIO = "O campo avaliação é obrigatório!";
+	private static final String CAMPO_AVALIACAO_OBRIGATORIO = Messages.CAMPO_AVALIACAO_OBRIGATORIO;
 	private final PrestadorRepository repository;
 	private final GoogleService googleService;
 

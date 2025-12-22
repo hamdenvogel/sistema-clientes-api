@@ -1,11 +1,13 @@
 package io.github.hvogel.clientes.criteria;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import io.github.hvogel.clientes.enums.SearchOperation;
 
 public class SearchCriteria implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
     private String key;
     private Serializable value;

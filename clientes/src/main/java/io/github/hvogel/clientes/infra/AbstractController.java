@@ -57,7 +57,7 @@ public abstract class AbstractController<E extends IBaseEntity, D extends Serial
 	@PutMapping("/{id}")
 	public ResponseEntity<D> update(@PathVariable("id") Long id, @Valid @RequestBody D dto) {
 		Optional<E> obj = service.findOneById(id);
-		if (!obj.isPresent()) {
+		if (obj.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		}
 
